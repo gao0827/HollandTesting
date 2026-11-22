@@ -67,13 +67,15 @@ test('虚拟支付回调只触发查单，订单待确认时禁止获取报告',
   const recordId = 'record-123'
   let verifiedStatus = 'pending'
   let paymentCancelled = false
+  let statusOffline = false
   const priceFen = 900
   const platform = {
     login({ success }) { success({ code: 'test-code' }) },
-    request({ url, data, success }) {
+    request({ url, data, success, fail }) {
       const route = url.split('/').pop()
       interactions.push(route)
       assert.equal(data.recordId, recordId)
+      if (route === 'status' && statusOffline) return fail(new Error('network unavailable'))
       const payloads = {
         order: {
           status: 'payable', priceFen, payment: {
@@ -123,4 +125,9 @@ test('虚拟支付回调只触发查单，订单待确认时禁止获取报告',
   verifiedStatus = 'unlocked'
   assert.equal((await service.verifyOrder(recordId)).status, 'unlocked')
   assert.ok((await service.unlockReport(recordId, {})).report)
+  statusOffline = true
+  paymentCancelled = false
+  await assert.rejects(service.startPayment(recordId, { quoteId: 'test-quote', priceFen }), {
+    code: 'PAYMENT_STATUS_UNKNOWN', orderId: 'order123'
+  })
 })

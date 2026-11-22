@@ -1,6 +1,6 @@
 {
   "description": "职趣测评微信原生小程序",
-  "packOptions": { "ignore": [] },
+  "packOptions": { "ignore": [{ "type": "folder", "value": "server" }] },
   "setting": {
     "urlCheck": false, "es6": true, "enhance": true, "postcss": true,
     "preloadBackgroundData": false, "minified": true, "newFeature": true,

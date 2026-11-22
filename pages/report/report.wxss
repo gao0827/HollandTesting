@@ -36,6 +36,34 @@
   font-variant-numeric: tabular-nums;
 }
 
+.checkout-reference {
+  display: flex;
+  align-items: center;
+  gap: 14rpx;
+  margin-top: 20rpx;
+  color: var(--color-muted);
+  font-size: 24rpx;
+}
+
+.checkout-reference-copy {
+  flex: 1;
+  min-width: 0;
+}
+
+.checkout-reference-number {
+  margin-top: 4rpx;
+  word-break: break-all;
+  color: var(--color-text);
+  font-variant-numeric: tabular-nums;
+}
+
+.checkout-copy-button {
+  flex: none;
+  min-height: 58rpx;
+  padding: 0 16rpx;
+  font-size: 24rpx;
+}
+
 .report-hero {
   padding: 36rpx 32rpx;
   border-radius: 28rpx;

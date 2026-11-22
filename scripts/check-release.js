@@ -1,6 +1,7 @@
 const fs = require('node:fs')
 const path = require('node:path')
 const { FEATURE_FLAGS } = require('../config/product')
+const settings = require('../config/commercial')
 const { available, getReportAdUnit, getBasicReportAdUnit } = require('../services/commercial-service')
 
 function checkProjectConfig(text) {
@@ -42,8 +43,38 @@ function checkRelease(root) {
   return issues
 }
 
-if (require.main === module) {
-  const issues = checkRelease(path.resolve(__dirname, '..'))
+async function checkPaymentEndpoint(endpoint, { appId, priceFen }, request = fetch) {
+  try {
+    const response = await request(`${endpoint.replace(/\/+$/, '')}/health`, {
+      signal: AbortSignal.timeout(8000),
+      redirect: 'error'
+    })
+    if (!response.ok) return ['HTTPS 报告服务未响应，请检查部署及接口前缀。']
+    const status = await response.json()
+    if (status?.service !== 'holland-report-payment') return ['HTTPS 地址未指向专业版报告服务。']
+    if (status.appId !== appId) return ['小程序与报告服务使用了不同的 AppID。']
+    if (status.paymentEnv !== 0) return ['报告服务未使用微信虚拟支付正式环境。']
+    if (status.priceFen !== priceFen) return ['报告服务售价与小程序配置不一致。']
+    return []
+  } catch {
+    return ['无法连接 HTTPS 报告服务，请核对地址及网关配置。']
+  }
+}
+
+async function runReleaseCheck() {
+  const root = path.resolve(__dirname, '..')
+  const issues = checkRelease(root)
+  if (process.argv.includes('--payment')) {
+    if (!available && !(FEATURE_FLAGS.payments || FEATURE_FLAGS.paidReportUnlock)) {
+      issues.push('当前项目未启用付费报告及支付服务。')
+    }
+    if (!issues.length) {
+      const { appid } = JSON.parse(fs.readFileSync(path.join(root, 'project.config.json'), 'utf8').replace(/^\uFEFF/, ''))
+      issues.push(...await checkPaymentEndpoint(settings.professionalReportApi, {
+        appId: appid, priceFen: settings.professionalReportPriceFen
+      }))
+    }
+  }
   if (issues.length) {
     issues.forEach((issue) => console.error(issue))
     process.exitCode = 1
@@ -52,4 +83,6 @@ if (require.main === module) {
   }
 }
 
-module.exports = { checkProjectConfig }
+if (require.main === module) runReleaseCheck()
+
+module.exports = { checkProjectConfig, checkPaymentEndpoint }

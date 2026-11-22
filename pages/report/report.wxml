@@ -26,11 +26,29 @@
 
     <view class="card report-section">
       <view class="section-title">购买本次报告</view>
-      <view class="report-copy">单次购买，权益对应这条测评记录。已购买可用同一微信账号查询并打开报告。</view>
-      <view wx:if="{{!checkoutAvailable}}" class="report-note">购买暂未开放。</view>
+      <view class="report-copy">单次购买，权益对应这条测评记录。保留这条本地记录，可用同一微信账号恢复查看。</view>
+      <block wx:if="{{!checkoutAvailable}}">
+        <view class="checkout-price-row">
+          <text>单次售价</text>
+          <text class="checkout-price">{{configuredPriceText}}</text>
+        </view>
+        <view class="report-note">{{checkoutNotice}}</view>
+        <block wx:if="{{canPreview}}">
+          <view class="report-copy">可在开发者工具中，用这次测评的本地结果预览完整报告。</view>
+          <button class="button-primary report-return" bindtap="openLocalPreview">预览本次完整报告</button>
+          <view wx:if="{{checkoutError}}" class="report-note">{{checkoutError}}</view>
+        </block>
+      </block>
       <block wx:else>
         <view wx:if="{{checkoutState === 'pending'}}" class="report-note">订单待确认，请查询购买状态。</view>
         <view wx:if="{{checkoutError}}" class="report-note" aria-live="polite">{{checkoutError}}</view>
+        <view wx:if="{{orderReference}}" class="checkout-reference">
+          <view class="checkout-reference-copy">
+            <view>订单编号</view>
+            <view class="checkout-reference-number">{{orderReference}}</view>
+          </view>
+          <button class="button-ghost checkout-copy-button" bindtap="copyOrderReference">复制</button>
+        </view>
         <block wx:if="{{checkoutState === 'locked'}}">
           <view class="checkout-price-row">
             <text>本次报告价格</text>
@@ -40,7 +58,7 @@
         </block>
         <block wx:if="{{checkoutState === 'unlocked'}}">
           <view class="report-note">已确认购买权益</view>
-          <view class="report-copy">生成报告时会提交本次汇总分数、角色及题库版本。原始答卷保存在本机。</view>
+          <view class="report-copy">生成报告时会提交本次汇总分数、角色及题库版本。服务端保存分数校验值以恢复同一份报告，原始答卷保存在本机。</view>
           <button class="button-primary report-return" disabled="{{busy}}" bindtap="loadPurchasedReport">{{busy ? '生成中…' : '同意并查看完整报告'}}</button>
         </block>
         <button
@@ -68,6 +86,9 @@
       </view>
       <view class="report-date">测评完成于 {{completedAtText}}</view>
     </view>
+
+    <view wx:if="{{previewMode}}" class="report-note">开发者工具预览 · 使用本次测评的本地分数</view>
+    <view wx:if="{{previewMode && !professionalProfile.length}}" class="report-note">这条历史记录仅保存了六维兴趣分数。</view>
 
     <view class="report-chart">
       <interest-chart dimensions="{{report.profile.dimensions}}" />
@@ -138,6 +159,7 @@
     </view>
 
     <view class="report-footer">本报告依据这次兴趣测评，用于职业探索。选择岗位时也请考虑技能、价值观和实际条件。</view>
+    <button wx:if="{{previewMode}}" class="button-ghost report-return" bindtap="closeLocalPreview">返回购买说明</button>
     <ad-custom wx:if="{{adUnitId}}" unit-id="{{adUnitId}}" binderror="hideAd" />
   </block>
 </view>

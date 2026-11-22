@@ -15,10 +15,32 @@
 
 | 路由 | 请求 | 成功响应 |
 | --- | --- | --- |
-| `/status` | `recordId`、`code` | `status` 为 `locked`、`pending` 或 `unlocked`。可购买时返回整数分价格 `priceFen` 和有效期受控的 `quoteId`。 |
-| `/order` | 同上，外加 `quoteId` 和已展示的 `priceFen` | 服务端复核报价。可拉起支付时返回 `status: payable`、`priceFen` 和已签名的 `payment` 参数。已购买或存在待确认订单时分别返回 `unlocked` 或 `pending`。报价失效可返回 `locked`，客户端要求重新报价与确认。 |
+| `/status` | `recordId`、`code` | `status` 为 `locked`、`pending` 或 `unlocked`。可购买时返回整数分价格 `priceFen` 和绑定最近一笔订单的 `quoteId`。已有待确认或已购订单时返回 `orderId`。 |
+| `/order` | 同上，外加 `quoteId` 和已展示的 `priceFen` | 服务端复核报价。可拉起支付时返回 `status: payable`、`orderId`、`priceFen` 和已签名的 `payment` 参数。已购买或存在待确认订单时分别返回 `unlocked` 或 `pending`。价格或订单状态变化返回 `locked`，引导用户重新报价。 |
 | `/report` | `recordId`、`code`、用户同意提交的 `summary` | 再次核验已生效的权益，返回 `status: unlocked`、`report` 和 `professionalProfile`。 |
 
-`report` 使用现有深度报告视图的数据结构，包含 `profile.dimensions`、`plan.milestones` 和 `careers`。`professionalProfile` 使用专业版补充画像的数据结构。`summary` 仅包含阶段、版本和汇总分数。原始答卷留在本机。报告页每次重新打开时都校验权益。
+`report` 使用现有深度报告视图的数据结构，包含 `profile.dimensions`、`plan.milestones` 和 `careers`。`professionalProfile` 使用专业版补充画像的数据结构。客户端在报价前校验本地记录是否能生成报告。`summary` 仅在用户确认查看已购报告后提交，包含角色、版本和汇总分数。首次生成绑定该组分数的校验值，原始答卷留在本机。报告页每次重新打开时都校验权益。
 
-服务端以微信已验真的发货通知或可信查单结果确认支付，幂等处理重复请求和通知，并在退款后更新权益。支付弹窗返回后会查单，包括取消或异常返回的情况。报价变化时由用户重新确认金额。已购买用户在同一记录下查询权益后，可同意提交汇总分数并查看完整报告。联调需覆盖取消支付、金额变化、重复购买、待确认订单、已购买恢复、退款撤回权益及不同微信账号间的记录隔离。
+服务端以微信已验真的发货通知或可信查单结果确认支付，幂等处理重复请求和通知，并在微信确认退款后更新权益。支付弹窗返回后会查单，包括取消或异常返回的情况。微信确认旧订单未创建成功或已关闭时，可使用新报价开始下一笔购买。微信暂未确认时保留原订单并显示订单编号。恢复购买需要保留同一条本地测评记录，并使用原购买微信账号。
+
+## 开发者工具预览
+
+购买尚未配置时，在微信开发者工具中打开开发版的专业版报告页，选择「预览本次完整报告」。预览使用该记录的本地分数，展示四组画像、岗位比较和行动路线。体验版和正式版通过微信购买权益获取报告。
+
+## 运行报告服务
+
+使用 Node.js 24 运行 `node server/index.js`。服务使用 SQLite 持久化微信用户与测评记录的订单关系，报告按用户同意提交的汇总分数即时生成。小程序上传包排除 `server` 目录。
+
+| 服务端环境变量 | 值 |
+| --- | --- |
+| `HOLLAND_WECHAT_APP_ID`、`HOLLAND_WECHAT_APP_SECRET` | 同一个小程序的 AppID 和 AppSecret |
+| `HOLLAND_WECHAT_OFFER_ID`、`HOLLAND_WECHAT_PAY_KEY` | 虚拟支付 OfferID 和对应环境的 AppKey |
+| `HOLLAND_WECHAT_PRODUCT_ID`、`HOLLAND_REPORT_PRICE_FEN` | 已发布的报告道具 ID 和对应价格，默认 590 分（¥5.90） |
+| `HOLLAND_WECHAT_PUSH_TOKEN`、`HOLLAND_WECHAT_PUSH_AES_KEY` | 消息推送 Token 和 EncodingAESKey |
+| `HOLLAND_REPORT_DB_PATH` | 可写持久磁盘或挂载卷上的 SQLite 文件路径 |
+| `HOLLAND_WECHAT_PAY_ENV` | 正式环境为 0，沙箱为 1。两套环境分别使用对应 AppKey 和数据库 |
+| `HOLLAND_REPORT_HOST`、`HOLLAND_REPORT_PORT` | 可选，默认为 `127.0.0.1` 和 `3000` |
+
+通过 HTTPS 网关发布 `/professional-report`，并将该地址作为小程序的报告接口前缀。微信消息推送 URL 使用同域名的 `/professional-report/notify`，选择安全模式和 JSON，并为商品启用发货推送。服务器按订单、账号和金额核对微信查单结果后交付报告。微信状态暂无法确认时显示待确认。
+
+部署并完成小程序配置后，运行 `node scripts/check-release.js --payment` 核对 HTTPS 服务、AppID、支付环境及售价。实机联调覆盖下单、取消、重新报价、待确认、到账、恢复购买和退款后撤回权益。

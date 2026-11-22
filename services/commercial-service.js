@@ -59,6 +59,12 @@ function hasValidQuote(quote) {
     typeof quote.quoteId === 'string' && Boolean(quote.quoteId.trim())
 }
 
+function paymentError(message, code) {
+  const error = new Error(message)
+  error.code = code
+  return error
+}
+
 function createReportCommerce(flags, settings, platform) {
   const endpoint = String(settings.professionalReportApi || '').replace(/\/+$/, '')
   const available = Boolean(flags.payments && flags.paidReportUnlock && /^https:\/\/[a-z0-9.-]+(?:\/[a-z0-9/_-]*)?$/i.test(endpoint))
@@ -88,6 +94,12 @@ function createReportCommerce(flags, settings, platform) {
       timeout: 12000,
       data: { ...data, recordId, code }
     })
+    if (route === 'report' && response.statusCode === 422) {
+      throw paymentError('汇总分数与报告版本不匹配', 'REPORT_DATA_REJECTED')
+    }
+    if (route === 'report' && response.statusCode === 409) {
+      throw paymentError('本次分数与已购买的报告不一致', 'REPORT_RECORD_CHANGED')
+    }
     if (response.statusCode !== 200 || response.data?.recordId !== recordId) {
       throw new Error('报告服务暂时不可用')
     }
@@ -105,14 +117,16 @@ function createReportCommerce(flags, settings, platform) {
 
   async function createOrder(recordId, quote) {
     assertAvailable('createOrder')
-    if (typeof platform().requestVirtualPayment !== 'function') throw new Error('当前微信版本不支持购买')
+    const client = platform()
+    if (typeof client.requestVirtualPayment !== 'function' ||
+        (typeof client.canIUse === 'function' && !client.canIUse('requestVirtualPayment'))) {
+      throw paymentError('当前微信版本不支持购买', 'PAYMENT_UNSUPPORTED')
+    }
     if (!hasValidQuote(quote)) throw new Error('请先查询本次报告的价格')
     const order = await request('createOrder', 'order', recordId, { quoteId: quote.quoteId, priceFen: quote.priceFen })
     if (order.status === 'unlocked' || order.status === 'pending') return order
     if (order.status === 'locked' || (order.status === 'payable' && order.priceFen !== quote.priceFen)) {
-      const error = new Error('价格已变化，请重新查询报价')
-      error.code = 'QUOTE_CHANGED'
-      throw error
+      throw paymentError('价格已变化或订单已更新，请重新查询报价', 'QUOTE_CHANGED')
     }
     const payment = order.payment
     if (order.status !== 'payable' ||
@@ -121,10 +135,11 @@ function createReportCommerce(flags, settings, platform) {
     const { signData, paySig, signature, mode } = payment
     const signedOrder = JSON.parse(signData)
     if (signedOrder?.goodsPrice !== quote.priceFen || signedOrder.buyQuantity !== 1 ||
-        typeof signedOrder.outTradeNo !== 'string' || !signedOrder.outTradeNo) {
+        typeof signedOrder.outTradeNo !== 'string' || !signedOrder.outTradeNo ||
+        (order.orderId && signedOrder.outTradeNo !== order.orderId)) {
       throw new Error('签名订单金额或商品数量无效')
     }
-    return { ...order, payment: { signData, paySig, signature, mode } }
+    return { ...order, orderId: signedOrder.outTradeNo, payment: { signData, paySig, signature, mode } }
   }
 
   async function startPayment(recordId, quote) {
@@ -138,17 +153,28 @@ function createReportCommerce(flags, settings, platform) {
         paymentInterrupted = true
       }
     }
-    const status = await verifyOrder(recordId)
-    if (status.status === 'locked' && (order.status === 'pending' || (order.status === 'payable' && !paymentInterrupted))) {
-      return { status: 'pending' }
+    let status
+    try {
+      status = await verifyOrder(recordId)
+    } catch {
+      const error = paymentError('暂时无法核对微信订单', 'PAYMENT_STATUS_UNKNOWN')
+      error.orderId = order.orderId
+      throw error
     }
-    return { ...status, paymentInterrupted }
+    if (status.status === 'locked' && (order.status === 'pending' || (order.status === 'payable' && !paymentInterrupted))) {
+      return { status: 'pending', orderId: order.orderId }
+    }
+    const orderId = status.orderId || (status.status === 'pending' ? order.orderId : undefined)
+    return { ...status, ...(orderId ? { orderId } : {}), paymentInterrupted }
   }
 
   async function unlockReport(recordId, summary) {
     const response = await request('unlockReport', 'report', recordId, { summary })
     const { report, professionalProfile } = response
-    if (response.status !== 'unlocked' || !Array.isArray(report?.profile?.dimensions) ||
+    if (response.status !== 'unlocked') {
+      throw paymentError('完整报告暂不可用', 'REPORT_ENTITLEMENT_CHANGED')
+    }
+    if (!Array.isArray(report?.profile?.dimensions) ||
         !Array.isArray(report?.plan?.milestones) || !Array.isArray(report?.careers) ||
         !Array.isArray(professionalProfile)) throw new Error('完整报告暂不可用')
     return { report, professionalProfile }

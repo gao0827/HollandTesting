@@ -1,12 +1,28 @@
 const { FEATURE_FLAGS } = require('../../config/product')
+const { professionalReportPriceFen } = require('../../config/commercial')
 const { buildDeepReport, buildInterestProfile } = require('../../services/report-service')
 const { buildProfessionalProfile } = require('../../services/professional-scoring')
 const { buildProfessionalDecisionSteps } = require('../../services/professional-reading')
+const { buildProfessionalSummary } = require('../../services/professional-summary')
 const { USER_TYPE_LABELS } = require('../../services/assessment-selection')
 const storage = require('../../utils/storage')
 const { formatDate } = require('../../utils/format')
 const { getTypeRepresentatives } = require('../../services/knowledge-service')
 const commerce = require('../../services/commercial-service')
+
+function formatPrice(priceFen) {
+  return `¥${(priceFen / 100).toFixed(2)}`
+}
+
+function canPreviewLocalReport() {
+  try {
+    const account = wx.getAccountInfoSync?.()
+    const device = wx.getDeviceInfo?.() || wx.getSystemInfoSync?.()
+    return account?.miniProgram?.envVersion === 'develop' && device?.platform === 'devtools'
+  } catch {
+    return false
+  }
+}
 
 Page({
   data: {
@@ -14,9 +30,14 @@ Page({
     report: null,
     paidReport: false,
     checkoutAvailable: false,
+    checkoutNotice: '',
+    canPreview: false,
+    previewMode: false,
     checkoutState: '',
     checkoutError: '',
+    orderReference: '',
     busy: false,
+    configuredPriceText: formatPrice(professionalReportPriceFen),
     priceText: '',
     adUnitId: '',
     representatives: [],
@@ -37,14 +58,21 @@ Page({
     if (!record) return
     this.recordId = id
     if (commerce.usesPaidReport(record)) {
+      const hasCompleteProfile = Boolean(buildProfessionalSummary(record))
+      const checkoutAvailable = commerce.available && hasCompleteProfile
       this.setData({
         paidReport: true,
         recordId: id,
-        checkoutAvailable: commerce.available,
+        checkoutAvailable,
+        checkoutNotice: hasCompleteProfile
+          ? '购买服务尚未开通。'
+          : '这条记录缺少部分补充分数。完成新版 250 题后可生成完整画像。',
+        canPreview: !commerce.available && canPreviewLocalReport(),
         resultUrl: `/pages/result/result?id=${encodeURIComponent(id)}`,
         roleLabel: USER_TYPE_LABELS[record.user_type] || '',
         completedAtText: formatDate(record.created_at ?? record.completedAt)
       })
+      if (checkoutAvailable) return this.refreshOrder()
       return
     }
     const saved = storage.getSavedReport(id)
@@ -69,16 +97,48 @@ Page({
     })
   },
 
+  renderProfessionalReport(record, report, providerProfile = []) {
+    const localProfile = buildProfessionalProfile(record)
+    const localIds = new Set(localProfile.map((section) => section.id))
+    const fullProfile = [...localProfile, ...providerProfile.filter((section) => section?.id && !localIds.has(section.id))]
+    const decisionSteps = buildProfessionalDecisionSteps(buildInterestProfile(record), fullProfile, record.user_type)
+    this.renderReport(record, report, fullProfile, undefined, decisionSteps)
+  },
+
+  openLocalPreview() {
+    if (!this.data.paidReport || commerce.available || !canPreviewLocalReport()) return
+    const record = storage.getRecord(this.recordId)
+    const report = commerce.usesPaidReport(record) && buildDeepReport(record)
+    if (!report) {
+      this.setData({ checkoutError: '该测评记录缺少生成报告所需的分数。' })
+      return
+    }
+    this.renderProfessionalReport(record, report)
+    this.setData({ previewMode: true, checkoutError: '' })
+  },
+
+  closeLocalPreview() {
+    this.setData({ previewMode: false, report: null, decisionSteps: [], professionalProfile: [], representatives: [], milestones: [] })
+  },
+
   hideAd() {
     this.setData({ adUnitId: '' })
   },
 
   setCheckout(status) {
     this.quote = status.status === 'locked' ? status : null
+    const orderReference = typeof status.orderId === 'string' && /^[a-z0-9_-]{8,32}$/i.test(status.orderId)
+      ? status.orderId
+      : ''
     this.setData({
       checkoutState: status.status,
-      priceText: this.quote ? `¥${(this.quote.priceFen / 100).toFixed(2)}` : ''
+      priceText: this.quote ? formatPrice(this.quote.priceFen) : '',
+      orderReference: orderReference || (status.status === 'pending' ? this.data.orderReference : '')
     })
+  },
+
+  copyOrderReference() {
+    if (this.data.orderReference) wx.setClipboardData({ data: this.data.orderReference })
   },
 
   async refreshOrder() {
@@ -96,6 +156,10 @@ Page({
 
   async buyReport() {
     if (!this.quote || this.data.busy || this.data.checkoutState !== 'locked') return
+    if (!buildProfessionalSummary(storage.getRecord(this.recordId))) {
+      this.setData({ checkoutError: '这条测评记录缺少可用于生成报告的分数。' })
+      return
+    }
     this.setData({ busy: true, checkoutError: '' })
     try {
       const status = await commerce.startPayment(this.recordId, this.quote)
@@ -104,10 +168,14 @@ Page({
         this.setData({ checkoutError: '本次支付未完成。确认金额后可以重新购买。' })
       }
     } catch (error) {
+      if (error.code === 'PAYMENT_UNSUPPORTED') {
+        this.setData({ checkoutError: '请更新微信后购买。已购买的报告可以继续查询。' })
+        return
+      }
       const quoteChanged = error.code === 'QUOTE_CHANGED'
-      this.setCheckout({ status: quoteChanged ? '' : 'pending' })
+      this.setCheckout({ status: quoteChanged ? '' : 'pending', orderId: error.orderId })
       this.setData({
-        checkoutError: quoteChanged ? '报价已更新，请重新查询价格并确认购买。' : '暂时无法确认订单，请先查询购买状态。'
+        checkoutError: quoteChanged ? '订单状态或报价已更新，请重新查询价格。' : '暂时无法确认订单，请先查询购买状态。'
       })
     } finally {
       this.setData({ busy: false })
@@ -118,22 +186,24 @@ Page({
     if (this.data.checkoutState !== 'unlocked' || this.data.busy) return
     const record = storage.getRecord(this.recordId)
     if (!record || !commerce.usesPaidReport(record)) return
+    const summary = buildProfessionalSummary(record)
+    if (!summary) {
+      this.setData({ checkoutError: '本地记录缺少生成报告所需的分数。' })
+      return
+    }
     this.setData({ busy: true, checkoutError: '' })
     try {
-      const { report, professionalProfile } = await commerce.unlockReport(this.recordId, {
-        userType: record.user_type,
-        questionnaireVersion: record.questionnaire_version,
-        scoringVersion: record.scoring_version,
-        interestScores: record.riasec_scores,
-        professionalScores: record.professional_scores
-      })
-      const localProfile = buildProfessionalProfile(record)
-      const localIds = new Set(localProfile.map((section) => section.id))
-      const fullProfile = [...localProfile, ...professionalProfile.filter((section) => section?.id && !localIds.has(section.id))]
-      const decisionSteps = buildProfessionalDecisionSteps(buildInterestProfile(record), fullProfile, record.user_type)
-      this.renderReport(record, report, fullProfile, undefined, decisionSteps)
+      const { report, professionalProfile } = await commerce.unlockReport(this.recordId, summary)
+      this.renderProfessionalReport(record, report, professionalProfile)
     } catch (error) {
-      this.setData({ checkoutError: '暂时无法获取报告，请查询购买状态或重试。' })
+      if (error.code === 'REPORT_ENTITLEMENT_CHANGED') {
+        this.setCheckout({ status: 'pending' })
+        this.setData({ checkoutError: '购买权益待确认，请重新查询订单。' })
+      } else if (error.code === 'REPORT_DATA_REJECTED' || error.code === 'REPORT_RECORD_CHANGED') {
+        this.setData({ checkoutError: '购买权益已确认。当前分数与报告记录不匹配，请保留本地记录和订单编号。' })
+      } else {
+        this.setData({ checkoutError: '暂时无法获取报告，请查询购买状态或重试。' })
+      }
     } finally {
       this.setData({ busy: false })
     }
