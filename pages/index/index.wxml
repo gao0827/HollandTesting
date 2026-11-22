@@ -1,0 +1,116 @@
+<view class="page-shell home-page academy-theme safe-bottom">
+  <view class="top-bar">
+    <view class="brand-row">
+      <view class="brand-mark">职</view>
+      <view>
+        <view class="brand-name">职趣测评</view>
+        <view class="brand-caption">CAREER INTEREST MAP</view>
+      </view>
+    </view>
+  </view>
+
+  <view class="hero-card">
+    <view class="hero-lattice" aria-hidden="true"></view>
+    <view class="hero-main">
+      <view class="hero-copy">
+        <view class="hero-kicker">观兴趣 · 知所长 · 向未来</view>
+        <view class="hero-title">看见你的热爱</view>
+        <view class="hero-title hero-title-second">遇见未来的方向</view>
+        <view class="hero-subtitle">循霍兰德 RIASEC 六维框架，绘一张属于你的职业兴趣地图。</view>
+      </view>
+      <career-explorer-illustration class="hero-illustration" />
+    </view>
+
+    <view class="assessment-entries">
+      <button class="assessment-entry standard-entry" bindtap="startAssessment" hover-class="entry-pressed" hover-stay-time="120">
+        <view class="entry-head">
+          <view class="entry-title-row">
+            <view class="entry-emblem">标</view>
+            <view class="entry-title">标准版</view>
+          </view>
+          <view class="entry-state">已开放</view>
+        </view>
+        <view class="entry-main">
+          <view class="entry-count"><text>{{standardQuestionCount}}</text><text class="count-unit">题</text></view>
+          <view class="entry-description">六维兴趣画像</view>
+        </view>
+        <view class="entry-foot">
+          <view class="entry-availability">{{hasDraft ? '继续答题' : '开始测评'}}</view>
+          <text class="entry-arrow">→</text>
+        </view>
+      </button>
+
+      <button class="assessment-entry professional-entry" bindtap="openProfessionalAssessment" hover-class="entry-pressed" hover-stay-time="120">
+        <view class="entry-head">
+          <view class="entry-title-row">
+            <view class="entry-emblem professional-emblem">专</view>
+            <view class="entry-title">专业版</view>
+          </view>
+          <view class="entry-state professional-state">规划中</view>
+        </view>
+        <view class="entry-main">
+          <view class="entry-count"><text>250</text><text class="count-unit">题</text></view>
+          <view class="entry-description">多维职业探索</view>
+        </view>
+        <view class="entry-foot">
+          <view class="entry-availability professional-availability">查看规划</view>
+          <text class="entry-arrow professional-arrow">→</text>
+        </view>
+      </button>
+    </view>
+    <view wx:if="{{hasDraft}}" class="draft-hint">最近草稿 · {{draftLabel}} · {{draftAnswered}} / {{standardQuestionCount}} 题</view>
+  </view>
+
+  <view class="map-section card">
+    <view class="section-heading map-heading">
+      <view>
+        <view class="section-eyebrow">HOLLAND INTEREST MAP</view>
+        <view class="section-title">六种兴趣，一张个人地图</view>
+      </view>
+      <view class="compass-chip">六维罗盘</view>
+    </view>
+    <view class="map-description">兴趣并非单一标签。六种倾向彼此映照，前三种类型的组合更能勾勒你的职业方向。</view>
+    <holland-hexagon />
+  </view>
+
+  <view class="section-heading type-heading">
+    <view>
+      <view class="section-eyebrow">SIX INTEREST TYPES</view>
+      <view class="section-title">六种兴趣倾向</view>
+    </view>
+    <text class="section-caption">没有好坏之分</text>
+  </view>
+
+  <view class="type-grid">
+    <view wx:for="{{typeCards}}" wx:key="code" class="type-card {{item.className}}" data-type="{{item.code}}" bindtap="openInterestType">
+      <text class="type-code">{{item.code}}</text>
+      <text class="type-name">{{item.name}}</text>
+      <text class="type-caption">{{item.caption}}</text>
+    </view>
+  </view>
+
+  <navigator wx:if="{{knowledgeEnabled}}" class="button-ghost home-knowledge" url="/pages/knowledge/knowledge">
+    浏览职业知识库
+  </navigator>
+
+  <view wx:if="{{recentRecord}}" class="recent-card card" bindtap="openRecent">
+    <view class="recent-content">
+      <view class="recent-label">最近一次结果</view>
+      <view class="recent-title">{{recentRecord.code}} · {{recentRecord.primaryName}}</view>
+      <view class="recent-time">{{recentRecord.completedAtText}}</view>
+    </view>
+    <text class="recent-arrow">›</text>
+  </view>
+
+  <view class="home-actions">
+    <button class="button-ghost half-button" bindtap="openHistory">历史记录</button>
+    <button class="button-ghost half-button" bindtap="openAbout">测评说明</button>
+  </view>
+
+  <view class="privacy-card">
+    <view class="privacy-title">本地计算，不上传答案</view>
+    <view class="privacy-copy">当前版本不连接后台、数据库或付费接口。</view>
+  </view>
+
+  <view class="disclaimer">当前题目为自编体验题，仅用于兴趣探索与产品测试，不是官方职业量表，也不构成职业、心理或医学诊断。</view>
+</view>

@@ -1,0 +1,4 @@
+{
+  "navigationBarTitleText": "深度职业报告",
+  "usingComponents": { "interest-chart": "/components/interest-chart/interest-chart" }
+}

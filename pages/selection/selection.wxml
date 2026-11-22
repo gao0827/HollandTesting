@@ -1,0 +1,55 @@
+<view class="page-shell selection-page safe-bottom">
+  <view class="selection-intro">
+    <view class="intro-seal">择</view>
+    <view class="intro-copy">
+      <view class="intro-kicker">ASSESSMENT PATH</view>
+      <view class="intro-title">选择适合你的探索路径</view>
+      <view class="intro-description">不同人生阶段关注的问题不同。你的选择只用于匹配结果说明，不改变 RIASEC 六维计分。</view>
+    </view>
+  </view>
+
+  <view class="chosen-version chosen-{{assessmentType}}">
+    <view class="chosen-emblem">{{selectedVersionEmblem}}</view>
+    <view class="chosen-copy">
+      <view class="chosen-kicker">已选择测评</view>
+      <view class="chosen-title">{{selectedVersionLabel}} · {{selectedVersionCount}} 题</view>
+    </view>
+    <view class="chosen-status">{{selectedVersionStatus}}</view>
+  </view>
+
+  <view class="selection-section">
+    <view class="section-step">01</view>
+    <view class="section-copy">
+      <view class="section-title">你目前处于哪个阶段？</view>
+      <view class="section-description">请选择最符合当前情况的一项</view>
+    </view>
+  </view>
+
+  <view class="user-option-list">
+    <button
+      wx:for="{{userOptions}}"
+      wx:key="value"
+      class="user-option {{item.selected ? 'option-selected' : ''}}"
+      data-value="{{item.value}}"
+      bindtap="selectUserType"
+      hover-class="option-pressed"
+    >
+      <view class="option-emblem">{{item.emblem}}</view>
+      <view class="option-copy">
+        <view class="option-title">{{item.title}}</view>
+        <view class="option-description">{{item.description}}</view>
+      </view>
+      <view class="option-check">{{item.selected ? '✓' : ''}}</view>
+    </button>
+  </view>
+
+  <view class="selection-footer card">
+    <view class="selection-summary">{{selectionSummary}}</view>
+    <button
+      class="continue-button {{assessmentType === 'professional' ? 'professional-action' : ''}}"
+      disabled="{{!canContinue}}"
+      bindtap="continueAssessment"
+    >{{actionText}}</button>
+    <view class="local-note">答案仅保存在本机，当前阶段不连接后台或付费接口。</view>
+  </view>
+</view>

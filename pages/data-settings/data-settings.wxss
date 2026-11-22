@@ -1,0 +1,55 @@
+.data-section {
+  margin-bottom: 22rpx;
+  padding: 28rpx;
+}
+
+.data-copy {
+  margin-top: 10rpx;
+  color: #475569;
+  font-size: 27rpx;
+  line-height: 1.55;
+}
+
+.data-counts,
+.draft-actions {
+  display: flex;
+  gap: 16rpx;
+  margin-top: 20rpx;
+}
+
+.data-count {
+  flex: 1;
+  padding: 16rpx;
+  border-radius: 14rpx;
+  background: #eef2ff;
+  color: #4338ca;
+  font-size: 26rpx;
+}
+
+.data-number {
+  display: block;
+  font-size: 38rpx;
+  font-weight: 700;
+}
+
+.draft-row {
+  margin-top: 20rpx;
+  padding-top: 20rpx;
+  border-top: 1rpx solid #e2e8f0;
+}
+
+.draft-label {
+  color: #1e293b;
+  font-size: 30rpx;
+  font-weight: 700;
+}
+
+.draft-button {
+  min-height: 84rpx;
+  padding: 0 22rpx;
+  font-size: 27rpx;
+}
+
+.data-action {
+  margin-top: 22rpx;
+}

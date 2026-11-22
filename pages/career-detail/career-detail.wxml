@@ -1,0 +1,40 @@
+<view class="page-shell safe-bottom">
+  <block wx:if="{{career}}">
+    <view class="knowledge-hero">
+      <view class="hero-category">{{type.code}} · {{type.name}}的探索示例</view>
+      <view class="knowledge-title">{{career.title}}</view>
+      <view class="knowledge-summary">{{career.summary}}</view>
+    </view>
+
+    <view class="card detail-section">
+      <view class="section-title">岗位示例</view>
+      <view class="item-description">{{rolesText}}</view>
+    </view>
+
+    <view class="card detail-section">
+      <view class="section-title">日常工作</view>
+      <view wx:for="{{career.tasks}}" wx:key="*this" class="detail-line">
+        <text class="detail-bullet" aria-hidden="true">•</text><text>{{item}}</text>
+      </view>
+    </view>
+
+    <view class="card detail-section">
+      <view class="section-title">可以试试</view>
+      <view class="item-description">{{career.activity}}</view>
+    </view>
+
+    <view class="card detail-section">
+      <view class="section-title">资料来源</view>
+      <view class="item-description">{{career.source.publisher}}</view>
+      <view class="item-title">{{career.source.title}}</view>
+      <view class="item-description">职业任务参考美国职业资料，具体岗位职责因机构与地区而异。</view>
+      <view class="item-description">{{career.source.attribution}}</view>
+      <text class="source-license" user-select="{{true}}">{{career.source.licenseUrl}}</text>
+      <button class="button-ghost detail-action" bindtap="copySource">复制原文链接</button>
+    </view>
+  </block>
+  <view wx:else class="card empty-state">
+    <view class="section-title">未找到这个职业</view>
+    <navigator class="button-ghost detail-action" url="/pages/knowledge/knowledge" open-type="redirect">返回职业知识库</navigator>
+  </view>
+</view>

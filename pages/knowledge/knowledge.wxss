@@ -1,0 +1,79 @@
+@import "./knowledge-shared.wxss";
+
+.knowledge-section {
+  margin-top: 40rpx;
+}
+
+.type-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12rpx;
+  margin: 20rpx 0;
+}
+
+.type-filter {
+  display: flex;
+  align-items: center;
+  min-height: 80rpx;
+  margin: 0;
+  padding: 0 22rpx;
+  border: 1rpx solid #dfe3eb;
+  border-radius: 16rpx;
+  background: #ffffff;
+  color: #334155;
+  font-size: 26rpx;
+  line-height: 1.2;
+}
+
+.type-filter::after {
+  border: none;
+}
+
+.type-filter-active {
+  border-color: #4338ca;
+  background: #4338ca;
+  color: #ffffff;
+  font-weight: 600;
+}
+
+.type-explanation {
+  padding: 22rpx 24rpx;
+  border-left: 6rpx solid;
+  border-radius: 12rpx;
+  background: #eef2ff;
+}
+
+.knowledge-row {
+  display: flex;
+  align-items: center;
+  gap: 18rpx;
+  margin-top: 16rpx;
+  padding: 24rpx;
+}
+
+.knowledge-row-pressed {
+  background: #eef2ff;
+}
+
+.row-code {
+  display: flex;
+  flex: 0 0 54rpx;
+  align-items: center;
+  justify-content: center;
+  height: 54rpx;
+  border-radius: 14rpx;
+  background: #eef2ff;
+  color: #4338ca;
+  font-weight: 700;
+}
+
+.row-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.row-arrow {
+  color: #64748b;
+  font-size: 42rpx;
+  line-height: 1;
+}

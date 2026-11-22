@@ -1,0 +1,56 @@
+<view class="page-shell knowledge-page safe-bottom">
+  <view class="knowledge-hero">
+    <view class="knowledge-title">探索职业世界</view>
+    <view class="knowledge-summary">从六种兴趣倾向出发，了解不同岗位平时做什么。</view>
+  </view>
+
+  <view class="knowledge-section">
+    <view class="section-title">职业与岗位</view>
+    <view class="type-filters">
+      <button class="type-filter {{selectedType ? '' : 'type-filter-active'}}" data-code="" bindtap="selectType">全部</button>
+      <button
+        wx:for="{{types}}"
+        wx:key="code"
+        class="type-filter {{selectedType && selectedType.code === item.code ? 'type-filter-active' : ''}}"
+        data-code="{{item.code}}"
+        bindtap="selectType"
+      >{{item.code}} {{item.name}}</button>
+    </view>
+    <view wx:if="{{selectedType}}" class="type-explanation" style="border-left-color: {{selectedType.color}};">
+      <view class="item-title">{{selectedType.tagline}}</view>
+      <view class="item-description">{{selectedType.description}}</view>
+    </view>
+    <navigator
+      wx:for="{{careers}}"
+      wx:key="id"
+      class="card knowledge-row"
+      url="/pages/career-detail/career-detail?id={{item.id}}"
+      hover-class="knowledge-row-pressed"
+    >
+      <view class="row-code">{{item.dimension}}</view>
+      <view class="row-content">
+        <view class="item-title">{{item.title}}</view>
+        <view class="item-description">{{item.summary}}</view>
+      </view>
+      <text class="row-arrow" aria-hidden="true">›</text>
+    </navigator>
+  </view>
+
+  <view class="knowledge-section">
+    <view class="section-title">人物案例</view>
+    <navigator
+      wx:for="{{cases}}"
+      wx:key="id"
+      class="card knowledge-row"
+      url="/pages/case-detail/case-detail?id={{item.id}}"
+      hover-class="knowledge-row-pressed"
+    >
+      <image wx:if="{{item.avatar}}" class="case-avatar" src="{{item.avatar}}" mode="aspectFill" aria-hidden="true" />
+      <view class="row-content">
+        <view class="item-title">{{item.name}} · {{item.title}}</view>
+        <view class="item-description">{{item.summary}}</view>
+      </view>
+      <text class="row-arrow" aria-hidden="true">›</text>
+    </navigator>
+  </view>
+</view>

@@ -1,0 +1,44 @@
+<view class="page-shell about-page safe-bottom">
+  <view class="about-hero">
+    <view class="about-mark">RIASEC</view>
+    <view class="about-title">关于职趣测评</view>
+    <view class="about-subtitle">认识兴趣倾向，是探索职业方向的起点。</view>
+  </view>
+
+  <view class="about-card card">
+    <view class="about-section-title">什么是霍兰德职业兴趣？</view>
+    <view class="about-copy">霍兰德职业兴趣模型将常见的兴趣活动概括为现实型 R、研究型 I、艺术型 A、社会型 S、企业型 E 和常规型 C 六类。多数人会同时具有多种倾向，前三种倾向的组合通常比单一类型更有参考价值。</view>
+  </view>
+
+  <view class="about-card card">
+    <view class="about-section-title">如何作答？</view>
+    <view class="step-item"><text class="step-number">1</text><text>按“我是否喜欢做这件事”作答，不按当前能力判断。</text></view>
+    <view class="step-item"><text class="step-number">2</text><text>选择最接近真实感受的答案，不必追求理想形象。</text></view>
+    <view class="step-item"><text class="step-number">3</text><text>尽量在同一状态下一次完成；退出时进度会保存在本机。</text></view>
+  </view>
+
+  <view class="about-card card">
+    <view class="about-section-title">计分方式</view>
+    <view class="about-copy">标准版共 60 题，每个维度 10 题，采用 1–5 级兴趣评分。当前 60 题均为正向兴趣陈述，没有启用反向题。系统分别累计六个维度的原始分数，并换算为 0–100 的相对兴趣分。结果代码取原始分最高的前三个维度；同分时按 R、I、A、S、E、C 的固定顺序展示，同时在结果页提示并列情况。</view>
+  </view>
+
+  <view class="about-card card">
+    <view class="about-section-title">题目来源</view>
+    <view class="about-copy">当前标准版题目由“职趣测评”项目自行编写，用于产品原型验证，尚未完成正式心理测量学验证。它不是 O*NET®、SDS® 或其他官方量表的翻译、改编或授权版本。</view>
+  </view>
+
+  <view class="about-card card">
+    <view class="about-section-title">数据与隐私</view>
+    <view class="privacy-row"><text class="privacy-icon">✓</text><text>题目、计分和结果分析均在小程序本地完成。</text></view>
+    <view class="privacy-row"><text class="privacy-icon">✓</text><text>历史记录仅保存在当前微信客户端的本地存储中。</text></view>
+    <view class="privacy-row"><text class="privacy-icon">✓</text><text>当前版本不连接后台、数据库或任何外部接口。</text></view>
+    <navigator class="button-ghost about-button" url="/pages/data-settings/data-settings">管理本机数据</navigator>
+  </view>
+
+  <view class="notice-card">
+    <view class="notice-title">重要说明</view>
+    <view class="notice-copy">兴趣会随经历和环境变化。本测评适合自我探索与生涯讨论，不能替代正式职业咨询，也不用于心理或医学诊断。职业选择还应综合考虑能力、价值观、教育背景、工作环境和现实机会。</view>
+  </view>
+
+  <button class="button-primary about-button" bindtap="startAssessment">开始测评</button>
+</view>

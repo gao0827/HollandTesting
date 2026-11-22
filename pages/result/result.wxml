@@ -1,0 +1,78 @@
+<import src="/components/type-representatives/type-representatives.wxml" />
+<view class="page-shell result-page safe-bottom">
+  <view wx:if="{{loadFailed}}" class="card empty-state">
+    <view class="empty-title">未找到这次测评结果</view>
+    <view class="empty-copy">记录可能已被清除，请重新完成测评。</view>
+    <button class="button-primary empty-button" bindtap="goHome">返回首页</button>
+  </view>
+
+  <block wx:else>
+    <view class="result-hero">
+      <view class="result-kicker">你的霍兰德兴趣代码</view>
+      <view class="result-code">{{record.code}}</view>
+      <view class="result-primary">最高分倾向 · {{leadingText}}</view>
+      <view wx:if="{{!tieNotes.length || leadingText === primary.name}}" class="result-tagline">{{primary.tagline}}</view>
+      <view class="result-time">完成于 {{completedAtText}}</view>
+    </view>
+
+    <view wx:if="{{tieNotes.length}}" class="tie-note">
+      <view wx:for="{{tieNotes}}" wx:key="*this">{{item}}</view>
+      <view>同分维度按 RIASEC 顺序展示。建议结合完整六维分布理解结果。</view>
+    </view>
+
+    <button wx:if="{{reportUrl}}" class="button-primary result-report" bindtap="openReport">查看深度职业报告</button>
+
+    <view class="section-block">
+      <interest-chart dimensions="{{dimensions}}" />
+    </view>
+
+    <view wx:if="{{representatives.length}}" class="section-block">
+      <template is="typeRepresentatives" data="{{representatives: representatives}}" />
+    </view>
+
+    <view class="section-block">
+      <view class="section-title">前三兴趣倾向</view>
+      <view
+        wx:for="{{topTypes}}"
+        wx:key="code"
+        class="analysis-card card"
+        style="border-top-color: {{item.color}};"
+      >
+        <view class="analysis-head">
+          <view class="analysis-heading">
+            <view class="analysis-title">{{item.code}} · {{item.name}}</view>
+            <view class="analysis-tagline">{{item.rank}}名 · {{item.tagline}}</view>
+          </view>
+        </view>
+        <view class="analysis-description">{{item.description}}</view>
+        <view class="info-label">可能优势</view>
+        <view class="info-text">{{item.strengthsText}}</view>
+        <view class="info-label">可探索领域</view>
+        <view class="info-text">{{item.careersText}}</view>
+        <navigator
+          wx:if="{{knowledgeEnabled}}"
+          class="button-ghost result-knowledge"
+          url="/pages/knowledge/knowledge?type={{item.code}}"
+        >探索{{item.name}}岗位示例</navigator>
+      </view>
+    </view>
+
+    <view class="advice-card card">
+      <view class="advice-title">怎样使用这份结果？</view>
+      <view wx:if="{{combinationSummary}}" class="combination-summary">{{combinationSummary}}</view>
+      <view class="advice-item"><text class="advice-dot">1</text><text>优先关注前三类型的组合，而不是只看最高分。</text></view>
+      <view class="advice-item"><text class="advice-dot">2</text><text>把结果与能力、价值观、现实机会一起讨论。</text></view>
+      <view class="advice-item"><text class="advice-dot">3</text><text>通过课程、项目或访谈，小成本验证真实兴趣。</text></view>
+    </view>
+
+    <view class="result-actions">
+      <button class="button-primary" bindtap="startAgain">重新测评</button>
+      <view class="secondary-actions">
+        <button class="button-ghost secondary-button" bindtap="openHistory">历史记录</button>
+        <button class="button-ghost secondary-button" bindtap="goHome">返回首页</button>
+      </view>
+    </view>
+
+    <view class="result-disclaimer">本测评用于兴趣探索，不代表能力高低，也不构成职业、心理或医学诊断。</view>
+  </block>
+</view>

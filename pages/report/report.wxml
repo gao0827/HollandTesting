@@ -1,0 +1,79 @@
+<import src="/components/type-representatives/type-representatives.wxml" />
+<view class="page-shell report-page safe-bottom">
+  <view wx:if="{{!report}}" class="card empty-state">
+    <view class="section-title">{{enabled ? '当前记录无法生成报告' : '深度报告暂未开放'}}</view>
+    <view wx:if="{{enabled}}" class="report-copy">请从历史记录中打开一项已完成的测评。</view>
+    <navigator class="button-ghost report-return" url="/pages/history/history" open-type="redirect">查看历史记录</navigator>
+  </view>
+
+  <block wx:else>
+    <view class="report-hero">
+      <view class="report-kicker">{{report.plan.label}}</view>
+      <view class="report-hero-main">
+        <view class="report-code">{{report.profile.code}}</view>
+        <view class="report-objective">{{report.plan.objective}}</view>
+      </view>
+      <view class="report-date">测评完成于 {{completedAtText}}</view>
+    </view>
+
+    <view class="report-chart">
+      <interest-chart dimensions="{{report.profile.dimensions}}" />
+    </view>
+
+    <view class="card report-section">
+      <view class="section-title">怎样理解 {{report.profile.code}} 组合</view>
+      <view wx:if="{{report.profile.tieNotes.length}}" class="report-note">
+        <view wx:for="{{report.profile.tieNotes}}" wx:key="*this">{{item}}</view>
+      </view>
+      <view class="report-copy">{{report.profile.summary}}</view>
+      <view wx:for="{{report.profile.activities}}" wx:key="code" class="report-activity">
+        <text class="report-activity-label">{{item.code}} · {{item.name}}</text>
+        <text>{{item.text}}</text>
+      </view>
+    </view>
+
+    <view class="card report-section">
+      <view class="section-title">职业方向与岗位</view>
+      <navigator
+        wx:for="{{report.careers}}"
+        wx:key="id"
+        class="report-link report-career"
+        url="/pages/career-detail/career-detail?id={{item.id}}"
+      >
+        <view class="report-link-body">
+          <view class="report-item-title">{{item.title}}</view>
+          <view class="report-copy">{{item.rolesText}}</view>
+          <view class="report-practice">{{item.activity}}</view>
+        </view>
+        <text class="report-arrow" aria-hidden="true">›</text>
+      </navigator>
+    </view>
+
+    <view class="card report-section">
+      <view class="section-title">职业发展路线图</view>
+      <view class="report-copy">从上面的岗位练习里选一项开始，每 30 天留下一项可回顾的成果。</view>
+      <view class="report-horizons">
+        <button class="report-horizon {{horizon === '90' ? 'report-horizon-active' : ''}}" data-horizon="90" bindtap="selectHorizon">前 90 天</button>
+        <button class="report-horizon {{horizon === '180' ? 'report-horizon-active' : ''}}" data-horizon="180" bindtap="selectHorizon">完整 180 天</button>
+      </view>
+      <view class="report-save-actions">
+        <button class="button-secondary" disabled="{{savedHorizon === horizon}}" bindtap="saveReport">{{savedHorizon === horizon ? '报告已保存' : (savedHorizon ? '更新已保存的报告' : '保存报告到本机')}}</button>
+        <button wx:if="{{savedHorizon}}" class="button-ghost" bindtap="deleteSavedReport">删除已保存版本</button>
+      </view>
+      <view class="report-timeline">
+        <view wx:for="{{milestones}}" wx:key="id" class="report-milestone">
+          <view class="report-period">{{item.period}}</view>
+          <view class="report-item-title">{{item.title}}</view>
+          <view class="report-copy">{{item.action}}</view>
+          <view class="report-output"><text>阶段成果</text> {{item.output}}</view>
+        </view>
+      </view>
+    </view>
+
+    <view wx:if="{{representatives.length}}" class="report-chart">
+      <template is="typeRepresentatives" data="{{representatives: representatives}}" />
+    </view>
+
+    <view class="report-footer">本报告依据这次兴趣测评，用于职业探索。选择岗位时也请考虑技能、价值观和实际条件。</view>
+  </block>
+</view>

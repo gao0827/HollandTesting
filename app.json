@@ -1,0 +1,25 @@
+{
+  "pages": [
+    "pages/index/index",
+    "pages/selection/selection",
+    "pages/assessment/assessment",
+    "pages/result/result",
+    "pages/report/report",
+    "pages/knowledge/knowledge",
+    "pages/career-detail/career-detail",
+    "pages/case-detail/case-detail",
+    "pages/history/history",
+    "pages/history-detail/history-detail",
+    "pages/data-settings/data-settings",
+    "pages/about/about"
+  ],
+  "window": {
+    "navigationBarTitleText": "职趣测评",
+    "navigationBarBackgroundColor": "#F7F8FC",
+    "navigationBarTextStyle": "black",
+    "backgroundColor": "#F7F8FC",
+    "backgroundTextStyle": "light"
+  },
+  "style": "v2",
+  "sitemapLocation": "sitemap.json"
+}

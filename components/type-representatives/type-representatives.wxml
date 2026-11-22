@@ -1,0 +1,20 @@
+<template name="typeRepresentatives">
+  <view wx:if="{{representatives.length}}" class="card representatives">
+    <view class="section-title">六维兴趣人物代表</view>
+    <view class="representatives-intro">按你本次的维度得分排列。人物案例按公开工作经历选取，仅用于理解该类活动。</view>
+    <navigator
+      wx:for="{{representatives}}"
+      wx:key="id"
+      class="representative"
+      url="/pages/case-detail/case-detail?id={{item.id}}"
+    >
+      <image class="case-avatar" src="{{item.avatar}}" mode="aspectFill" aria-hidden="true" />
+      <view class="representative-content">
+        <view class="representative-type" style="color: {{item.color}};">{{item.typeLabel}}</view>
+        <view class="representative-name">{{item.name}}</view>
+        <view class="representative-relevance">{{item.relevance}}</view>
+      </view>
+      <text class="representative-arrow" aria-hidden="true">›</text>
+    </navigator>
+  </view>
+</template>

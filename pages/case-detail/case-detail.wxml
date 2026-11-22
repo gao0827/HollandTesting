@@ -1,0 +1,39 @@
+<view class="page-shell safe-bottom">
+  <block wx:if="{{entry}}">
+    <view class="knowledge-hero">
+      <view class="case-hero-heading">
+        <image wx:if="{{entry.avatar}}" class="case-avatar case-avatar-large" src="{{entry.avatar}}" mode="aspectFill" aria-hidden="true" />
+        <view class="case-hero-text">
+          <view class="hero-category">{{entry.name}}</view>
+          <view class="knowledge-title">{{entry.title}}</view>
+        </view>
+      </view>
+      <view class="knowledge-summary">{{entry.summary}}</view>
+    </view>
+
+    <view class="card detail-section">
+      <view class="section-title">工作经历</view>
+      <view wx:for="{{entry.highlights}}" wx:key="*this" class="detail-line">
+        <text class="detail-bullet" aria-hidden="true">•</text><text>{{item}}</text>
+      </view>
+    </view>
+
+    <view class="card detail-section">
+      <view class="section-title">想一想</view>
+      <view class="item-description">{{entry.reflection}}</view>
+    </view>
+
+    <view class="card detail-section">
+      <view class="section-title">资料来源</view>
+      <view class="item-description">{{entry.source.publisher}}</view>
+      <view class="item-title">{{entry.source.title}}</view>
+      <view class="item-description">{{entry.source.usage}}</view>
+      <view wx:if="{{entry.avatar}}" class="item-description">头像为生成插画。</view>
+      <button class="button-ghost detail-action" bindtap="copySource">复制原文链接</button>
+    </view>
+  </block>
+  <view wx:else class="card empty-state">
+    <view class="section-title">未找到这个案例</view>
+    <navigator class="button-ghost detail-action" url="/pages/knowledge/knowledge" open-type="redirect">返回职业知识库</navigator>
+  </view>
+</view>

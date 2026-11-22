@@ -1,0 +1,121 @@
+.history-page {
+  padding-top: 30rpx;
+}
+
+.history-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  padding: 0 4rpx;
+}
+
+.history-subtitle {
+  margin-top: 10rpx;
+  color: #94a3b8;
+  font-size: 24rpx;
+}
+
+.clear-action {
+  padding: 12rpx 4rpx;
+  color: #be123c;
+  font-size: 26rpx;
+}
+
+.record-list {
+  margin-top: 28rpx;
+}
+
+.record-card {
+  display: flex;
+  align-items: center;
+  padding: 26rpx;
+}
+
+.record-card + .record-card {
+  margin-top: 18rpx;
+}
+
+.record-code {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 120rpx;
+  height: 86rpx;
+  border-radius: 20rpx;
+  font-size: 30rpx;
+  font-weight: 800;
+  letter-spacing: 3rpx;
+}
+
+.record-content {
+  flex: 1;
+  min-width: 0;
+  margin-left: 24rpx;
+}
+
+.record-title {
+  overflow: hidden;
+  color: #111827;
+  font-size: 29rpx;
+  font-weight: 700;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.record-time {
+  margin-top: 10rpx;
+  color: #94a3b8;
+  font-size: 23rpx;
+}
+
+.record-delete {
+  padding: 18rpx 4rpx 18rpx 20rpx;
+  color: #94a3b8;
+  font-size: 24rpx;
+}
+
+.empty-state {
+  margin-top: 34rpx;
+}
+
+.empty-icon {
+  color: #a5b4fc;
+  font-size: 80rpx;
+}
+
+.empty-title {
+  margin-top: 18rpx;
+  color: #111827;
+  font-size: 34rpx;
+  font-weight: 700;
+}
+
+.empty-copy {
+  margin-top: 16rpx;
+  color: #64748b;
+  font-size: 25rpx;
+  line-height: 1.6;
+}
+
+.empty-button {
+  margin-top: 34rpx;
+}
+.history-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 10rpx;
+}
+
+.clear-action.history-data-link {
+  margin: 0;
+  padding: 12rpx 16rpx;
+  border-radius: 12rpx;
+  color: #4338ca;
+  background: #eef2ff;
+  line-height: 1.4;
+}
+
+.history-data-link::after {
+  border: none;
+}

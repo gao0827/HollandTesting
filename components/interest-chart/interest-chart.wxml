@@ -1,0 +1,27 @@
+<view class="chart" wx:if="{{rows.length}}">
+  <view class="chart-title">六维兴趣罗盘</view>
+  <view class="chart-intro">{{hasCompass ? '六条轴分别表示 RIASEC 兴趣类型。从中心的 0% 到外圈的 100%，每圈相隔 25%。' : '罗盘需要完整的六维百分比。下方列出这份记录已有的分数。'}}</view>
+
+  <view class="compass" wx:if="{{hasCompass}}" aria-hidden="true">
+    <view class="compass-plot">
+      <view class="compass-grid-line" wx:for="{{grid}}" wx:key="*this" style="{{item}}"></view>
+      <view class="compass-shape" style="clip-path:polygon({{polygon}});"></view>
+      <view class="compass-outline" wx:for="{{outline}}" wx:key="code" style="{{item.style}}"></view>
+      <view class="compass-point" wx:for="{{points}}" wx:key="code" style="{{item.style}};background:{{item.color}}"></view>
+      <text class="compass-axis" wx:for="{{axes}}" wx:key="code" style="{{item.style}};color:{{item.color}}">{{item.code}}</text>
+    </view>
+  </view>
+  <view class="chart-row" wx:for="{{rows}}" wx:key="code">
+    <view class="chart-row-label">
+      <text class="chart-dot" style="background-color: {{item.color}};" aria-hidden="true"></text>
+      <text class="chart-dimension">{{item.code}} · {{item.name}}</text>
+      <text class="chart-value">{{item.rawScore}} 分<text wx:if="{{item.hasPercentage}}"> · {{item.percentage}}%</text></text>
+    </view>
+  </view>
+
+  <view class="chart-note" wx:if="{{description}}">
+    <view class="chart-note-title">怎么读这张图</view>
+    <view>{{description}}</view>
+    <view wx:if="{{hasCompass}}" class="chart-footnote">数据点越靠外，该维度兴趣得分越高。六条轴上的百分比分别计算。</view>
+  </view>
+</view>

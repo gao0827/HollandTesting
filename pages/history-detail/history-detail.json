@@ -1,0 +1,4 @@
+{
+  "navigationBarTitleText": "记录详情",
+  "usingComponents": { "interest-chart": "/components/interest-chart/interest-chart" }
+}

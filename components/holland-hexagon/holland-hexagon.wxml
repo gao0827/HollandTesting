@@ -1,0 +1,24 @@
+<view class="holland-visual" role="img" aria-label="霍兰德 RIASEC 六种职业兴趣类型六边形">
+  <view class="visual-halo halo-one"></view>
+  <view class="visual-halo halo-two"></view>
+  <view class="connector connector-vertical"></view>
+  <view class="connector connector-left"></view>
+  <view class="connector connector-right"></view>
+
+  <view class="hexagon-outer">
+    <view class="hexagon-inner">
+      <view class="compass-ring">
+        <view class="compass-needle needle-top"></view>
+        <view class="compass-needle needle-bottom"></view>
+        <view class="compass-center"></view>
+      </view>
+      <view class="hexagon-title">RIASEC</view>
+      <view class="hexagon-subtitle">兴趣地图</view>
+    </view>
+  </view>
+
+  <view wx:for="{{types}}" wx:key="code" class="type-node {{item.className}}">
+    <text class="type-code">{{item.code}}</text>
+    <text class="type-name">{{item.name}}</text>
+  </view>
+</view>

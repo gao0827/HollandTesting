@@ -1,0 +1,29 @@
+<view class="page-shell detail-page safe-bottom">
+  <view wx:if="{{loadFailed}}" class="card empty-state">
+    <view class="empty-title">记录不存在</view>
+    <button class="button-primary empty-button" bindtap="goBack">返回历史记录</button>
+  </view>
+
+  <block wx:else>
+    <view class="detail-hero card">
+      <view class="detail-label">霍兰德兴趣代码</view>
+      <view class="detail-code">{{record.code}}</view>
+      <view class="detail-primary">{{primary.name}}主导</view>
+      <view class="detail-time">{{completedAtText}}</view>
+    </view>
+
+    <view class="top-row">
+      <view
+        wx:for="{{topTypes}}"
+        wx:key="code"
+        class="top-chip"
+        style="background: {{item.lightColor}}; color: {{item.color}};"
+      >{{item.code}} · {{item.name}}</view>
+    </view>
+
+    <interest-chart dimensions="{{dimensions}}" />
+
+    <navigator wx:if="{{savedReportUrl}}" class="button-secondary full-result-button" url="{{savedReportUrl}}">打开已保存报告</navigator>
+    <button class="button-primary full-result-button" bindtap="viewFullResult">查看完整分析</button>
+  </block>
+</view>

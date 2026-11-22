@@ -1,0 +1,42 @@
+.representatives {
+  padding: 28rpx;
+}
+
+.representatives-intro,
+.representative-relevance {
+  margin-top: 8rpx;
+  color: #475569;
+  font-size: 26rpx;
+  line-height: 1.55;
+}
+
+.representative {
+  display: flex;
+  align-items: center;
+  gap: 18rpx;
+  margin-top: 16rpx;
+  padding: 18rpx 0 0;
+  border-top: 1rpx solid #e9e4db;
+}
+
+.representative-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.representative-type {
+  font-size: 24rpx;
+  font-weight: 700;
+}
+
+.representative-name {
+  margin-top: 4rpx;
+  color: #262350;
+  font-size: 30rpx;
+  font-weight: 700;
+}
+
+.representative-arrow {
+  color: #64748b;
+  font-size: 42rpx;
+}

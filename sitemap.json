@@ -1,0 +1,21 @@
+{
+  "desc": "职趣测评页面索引规则",
+  "rules": [
+    {
+      "action": "allow",
+      "page": "pages/index/index"
+    },
+    {
+      "action": "allow",
+      "page": "pages/knowledge/knowledge"
+    },
+    {
+      "action": "allow",
+      "page": "pages/about/about"
+    },
+    {
+      "action": "disallow",
+      "page": "*"
+    }
+  ]
+}

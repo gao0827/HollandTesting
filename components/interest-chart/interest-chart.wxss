@@ -1,0 +1,120 @@
+.chart {
+  padding: 30rpx;
+  border: 1rpx solid #e9e4db;
+  border-radius: 28rpx;
+  background: #fffefa;
+  color: #262350;
+  box-shadow: 0 12rpx 32rpx rgba(38, 35, 80, 0.06);
+}
+
+.chart-title {
+  font-size: 36rpx;
+  font-weight: 700;
+}
+
+.chart-intro,
+.chart-note,
+.chart-footnote {
+  color: #475569;
+  font-size: 26rpx;
+  line-height: 1.55;
+}
+
+.chart-intro {
+  margin-top: 10rpx;
+}
+
+.compass {
+  width: 100%;
+  max-width: 500rpx;
+  margin: 14rpx auto 0;
+}
+
+.compass-plot {
+  position: relative;
+  padding-bottom: 100%;
+}
+
+.compass-grid-line,
+.compass-outline {
+  position: absolute;
+  height: 2rpx;
+  transform-origin: left center;
+  background: #ded7e7;
+}
+
+.compass-shape {
+  position: absolute;
+  inset: 0;
+  background: rgba(103, 84, 164, 0.22);
+}
+
+.compass-outline {
+  height: 4rpx;
+  border-radius: 4rpx;
+  background: #6754a4;
+}
+
+.compass-point,
+.compass-axis {
+  position: absolute;
+  transform: translate(-50%, -50%);
+}
+
+.compass-point {
+  box-sizing: border-box;
+  width: 17rpx;
+  height: 17rpx;
+  border: 2rpx solid #fffefa;
+  border-radius: 50%;
+}
+
+.compass-axis {
+  font-size: 30rpx;
+  font-weight: 800;
+}
+
+.chart-row {
+  margin-top: 20rpx;
+}
+
+.chart-row-label {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10rpx;
+  align-items: center;
+  font-size: 26rpx;
+  font-weight: 600;
+}
+
+.chart-dot {
+  width: 14rpx;
+  height: 14rpx;
+  border-radius: 50%;
+}
+
+.chart-dimension {
+  flex: 1;
+}
+
+.chart-value {
+  color: #334155;
+  font-variant-numeric: tabular-nums;
+}
+
+.chart-note {
+  margin-top: 26rpx;
+  padding: 18rpx 20rpx;
+  border-radius: 16rpx;
+  background: #f0eef8;
+}
+
+.chart-note-title {
+  margin-bottom: 5rpx;
+  color: #262350;
+  font-weight: 700;
+}
+
+.chart-footnote {
+  margin-top: 8rpx;
+}

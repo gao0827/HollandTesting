@@ -1,0 +1,8 @@
+{
+  "navigationBarTitleText": "职趣测评",
+  "enablePullDownRefresh": false,
+  "usingComponents": {
+    "holland-hexagon": "/components/holland-hexagon/holland-hexagon",
+    "career-explorer-illustration": "/components/career-explorer-illustration/career-explorer-illustration"
+  }
+}

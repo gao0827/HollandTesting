@@ -1,0 +1,44 @@
+<view class="page-shell history-page safe-bottom">
+  <view class="history-head">
+    <view>
+      <view class="section-title">历史记录</view>
+      <view class="history-subtitle">最多保留最近 30 次测评</view>
+    </view>
+    <view class="history-actions">
+      <button class="clear-action history-data-link" bindtap="openDataSettings">数据与隐私</button>
+      <view wx:if="{{!loadFailed && records.length}}" class="clear-action" bindtap="clearAll">清空历史</view>
+    </view>
+  </view>
+
+  <view wx:if="{{loadFailed}}" class="card empty-state">
+    <view class="empty-title">暂时无法读取历史记录</view>
+    <button class="button-ghost empty-button" bindtap="loadRecords">重试</button>
+  </view>
+
+  <view wx:elif="{{records.length}}" class="record-list">
+    <view
+      wx:for="{{records}}"
+      wx:key="id"
+      class="record-card card"
+      data-id="{{item.id}}"
+      bindtap="openRecord"
+    >
+      <view class="record-code" style="background: {{item.primaryLightColor}}; color: {{item.primaryColor}};">{{item.code}}</view>
+      <view class="record-content">
+        <view class="record-title">{{item.primaryName}}主导</view>
+        <view class="record-time">{{item.completedAtText}}</view>
+        <view wx:if="{{item.userTypeLabel || item.hasSavedReport}}" class="record-time">
+          {{item.userTypeLabel}}<text wx:if="{{item.hasSavedReport}}">{{item.userTypeLabel ? ' · ' : ''}}报告已保存</text>
+        </view>
+      </view>
+      <view class="record-delete" data-id="{{item.id}}" catchtap="deleteRecord">删除</view>
+    </view>
+  </view>
+
+  <view wx:else class="card empty-state">
+    <view class="empty-icon">◎</view>
+    <view class="empty-title">还没有测评记录</view>
+    <view class="empty-copy">完成一次测评后，结果会保存在当前设备。</view>
+    <button class="button-primary empty-button" bindtap="startAssessment">开始第一次测评</button>
+  </view>
+</view>

@@ -1,0 +1,38 @@
+<view class="page-shell data-page safe-bottom">
+  <view class="card data-section">
+    <view class="section-title">本机数据</view>
+    <view class="data-copy">答题草稿、测评记录和已保存报告都存放在当前微信客户端。换设备后需重新作答。</view>
+    <view wx:if="{{!loadFailed}}" class="data-counts">
+      <navigator class="data-count" url="/pages/history/history"><text class="data-number">{{recordCount}}</text>历史记录 ›</navigator>
+      <view class="data-count"><text class="data-number">{{reportCount}}</text>已保存报告</view>
+    </view>
+  </view>
+
+  <view wx:if="{{loadFailed}}" class="card data-section">
+    <view class="section-title">暂时无法读取数据</view>
+    <button class="button-ghost data-action" bindtap="loadData">重试</button>
+  </view>
+
+  <block wx:else>
+    <view class="card data-section">
+      <view class="section-title">答题草稿</view>
+      <view wx:if="{{!drafts.length}}" class="data-copy">暂无未完成的测评。</view>
+      <view wx:for="{{drafts}}" wx:key="id" class="draft-row">
+        <view class="draft-details">
+          <view class="draft-label">{{item.label}}</view>
+          <view class="data-copy">已答 {{item.answered}} 题 · {{item.updatedAt}}</view>
+        </view>
+        <view class="draft-actions">
+          <navigator class="button-ghost draft-button" url="{{item.url}}">继续作答</navigator>
+          <button class="button-danger draft-button" data-id="{{item.id}}" bindtap="deleteDraft">删除</button>
+        </view>
+      </view>
+    </view>
+
+    <view class="card data-section">
+      <view class="section-title">清除数据</view>
+      <view class="data-copy">可在历史记录中单独删除某次测评，或清除本机的全部答题草稿、测评记录和报告。</view>
+      <button class="button-danger data-action" disabled="{{!hasData}}" bindtap="deleteAll">清除全部本机测评数据</button>
+    </view>
+  </block>
+</view>

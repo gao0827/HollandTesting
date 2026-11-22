@@ -1,0 +1,18 @@
+@import "../knowledge/knowledge-shared.wxss";
+
+.case-hero-heading {
+  display: flex;
+  align-items: center;
+  gap: 22rpx;
+}
+
+.case-avatar-large {
+  flex-basis: 124rpx;
+  width: 124rpx;
+  height: 124rpx;
+}
+
+.case-hero-text {
+  flex: 1;
+  min-width: 0;
+}
