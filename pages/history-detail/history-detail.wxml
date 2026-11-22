@@ -4,6 +4,12 @@
     <button class="button-primary empty-button" bindtap="goBack">返回历史记录</button>
   </view>
 
+  <view wx:elif="{{basicLocked}}" class="card empty-state">
+    <view class="section-title">250 题测评已完成</view>
+    <view class="detail-time">{{completedAtText}}</view>
+    <button class="button-primary empty-button" bindtap="viewFullResult">查看解读方式</button>
+  </view>
+
   <block wx:else>
     <view class="detail-hero card">
       <view class="detail-label">霍兰德兴趣代码</view>

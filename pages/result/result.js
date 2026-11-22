@@ -3,7 +3,9 @@ const { RIASEC } = require('../../data/riasec')
 const { formatDate } = require('../../utils/format')
 const { FEATURE_FLAGS } = require('../../config/product')
 const { buildInterestProfile } = require('../../services/report-service')
+const { buildProfessionalInterestReading } = require('../../services/professional-reading')
 const { getTypeRepresentatives } = require('../../services/knowledge-service')
+const commerce = require('../../services/commercial-service')
 
 Page({
   data: {
@@ -13,7 +15,14 @@ Page({
     topTypes: [],
     dimensions: [],
     representatives: [],
+    paidReport: false,
+    basicLocked: false,
+    basicAdUnitId: '',
+    basicBusy: false,
+    basicRewardPending: false,
+    basicError: '',
     combinationSummary: '',
+    basicReading: null,
     reportUrl: '',
     leadingText: '',
     tieNotes: [],
@@ -29,6 +38,28 @@ Page({
     const record = storage.getRecord(id)
     if (!record || !record.primaryCode || !RIASEC[record.primaryCode]) {
       this.setData({ loadFailed: true })
+      return
+    }
+    const paidReport = commerce.usesPaidReport(record)
+    const basicLocked = commerce.requiresBasicReportUnlock(record)
+    const safeRecord = { id: record.id, assessment_type: paidReport ? 'professional' : record.assessment_type }
+    const reportUrl = FEATURE_FLAGS.deepReport && record.id
+      ? `/pages/report/report?id=${encodeURIComponent(record.id)}`
+      : ''
+    if (basicLocked) {
+      this.setData({
+        record: safeRecord,
+        paidReport,
+        basicLocked,
+        basicAdUnitId: commerce.getBasicReportAdUnit(record),
+        dimensions: [],
+        topTypes: [],
+        representatives: [],
+        basicReading: null,
+        reportUrl,
+        completedAtText: formatDate(record.completedAt),
+        loadFailed: false
+      })
       return
     }
 
@@ -56,8 +87,7 @@ Page({
       const group = groups.find((entry) => entry.codes.includes(item.code))
       return Object.assign({}, item, meta, {
         rank: group.codes.length > 1 ? `并列第 ${group.rank}` : `第 ${group.rank}`,
-        strengthsText: meta.strengths.join('、'),
-        careersText: meta.careers.join('、')
+        strengthsText: meta.strengths.join('、')
       })
     })
 
@@ -67,18 +97,17 @@ Page({
       shortName: RIASEC[item.code].shortName
     }))
     const profile = buildInterestProfile(record)
-    const reportUrl = FEATURE_FLAGS.deepReport && profile && record.id
-      ? `/pages/report/report?id=${encodeURIComponent(record.id)}`
-      : ''
-
     this.setData({
-      record,
+      record: { ...safeRecord, code: record.code },
       primary: RIASEC[record.primaryCode],
       topTypes,
       dimensions,
       representatives: getTypeRepresentatives(dimensions),
+      paidReport,
+      basicLocked: false,
       combinationSummary: profile ? profile.summary : '',
-      reportUrl,
+      basicReading: paidReport ? buildProfessionalInterestReading(profile, record.user_type) : null,
+      reportUrl: profile ? reportUrl : '',
       leadingText: groups[0].codes.map((code) => RIASEC[code].name).join('、'),
       tieNotes: groups.filter((group) => group.codes.length > 1).map((group) =>
         `${group.codes.join('、')} 并列第 ${group.rank} 名`
@@ -88,8 +117,37 @@ Page({
     })
   },
 
+  async unlockBasicReport() {
+    const { basicLocked, basicAdUnitId, basicBusy, record } = this.data
+    if (!basicLocked || !basicAdUnitId || basicBusy || !record?.id) return
+    this.setData({ basicBusy: true, basicError: '' })
+    try {
+      if (this.basicRewardRecordId !== record.id) {
+        const completed = await commerce.watchBasicReportAd(basicAdUnitId)
+        if (!completed) {
+          this.setData({ basicError: '完整观看广告后即可解锁基础解读。' })
+          return
+        }
+        this.basicRewardRecordId = record.id
+      }
+      storage.unlockBasicReport(record.id)
+      this.basicRewardRecordId = ''
+      this.setData({ basicRewardPending: false })
+      this.loadRecord(record.id)
+    } catch {
+      const rewardPending = this.basicRewardRecordId === record.id
+      this.setData({
+        basicRewardPending: rewardPending,
+        basicError: rewardPending ? '广告已看完，解锁状态暂未保存，请重试。' : '暂时无法播放广告，请稍后重试。'
+      })
+    } finally {
+      this.setData({ basicBusy: false })
+    }
+  },
+
   startAgain() {
-    wx.navigateTo({ url: '/pages/selection/selection?assessmentType=standard' })
+    const type = this.data.record?.assessment_type === 'professional' ? 'professional' : 'standard'
+    wx.navigateTo({ url: `/pages/selection/selection?assessmentType=${type}` })
   },
 
   openReport() {

@@ -4,7 +4,7 @@
     <view class="intro-copy">
       <view class="intro-kicker">ASSESSMENT PATH</view>
       <view class="intro-title">选择适合你的探索路径</view>
-      <view class="intro-description">不同人生阶段关注的问题不同。你的选择只用于匹配结果说明，不改变 RIASEC 六维计分。</view>
+      <view class="intro-description">根据你的角色，报告会提供对应的解读和下一步行动。</view>
     </view>
   </view>
 
@@ -18,14 +18,11 @@
   </view>
 
   <view class="selection-section">
-    <view class="section-step">01</view>
-    <view class="section-copy">
-      <view class="section-title">你目前处于哪个阶段？</view>
-      <view class="section-description">请选择最符合当前情况的一项</view>
-    </view>
+    <view class="section-title">选择你的角色</view>
+    <view class="section-description">请选择最符合本次测评用途的一项</view>
   </view>
 
-  <view class="user-option-list">
+  <view class="user-option-list" aria-role="radiogroup" aria-label="测评角色">
     <button
       wx:for="{{userOptions}}"
       wx:key="value"
@@ -33,17 +30,22 @@
       data-value="{{item.value}}"
       bindtap="selectUserType"
       hover-class="option-pressed"
+      aria-role="radio"
+      aria-checked="{{item.selected}}"
     >
-      <view class="option-emblem">{{item.emblem}}</view>
+      <view class="option-top" aria-hidden="true">
+        <view class="option-emblem">{{item.emblem}}</view>
+        <view wx:if="{{item.selected}}" class="option-check">✓</view>
+      </view>
       <view class="option-copy">
         <view class="option-title">{{item.title}}</view>
         <view class="option-description">{{item.description}}</view>
       </view>
-      <view class="option-check">{{item.selected ? '✓' : ''}}</view>
     </button>
   </view>
 
   <view class="selection-footer card">
+    <view wx:if="{{isAdvisor}}" class="advisor-note">陪同测评时，请让测评者按自己的感受和经历作答。</view>
     <view class="selection-summary">{{selectionSummary}}</view>
     <button
       class="continue-button {{assessmentType === 'professional' ? 'professional-action' : ''}}"
@@ -52,4 +54,5 @@
     >{{actionText}}</button>
     <view class="local-note">答案仅保存在本机，当前阶段不连接后台或付费接口。</view>
   </view>
+  <navigator wx:if="{{legacyDraftUrl}}" class="legacy-draft-link" url="{{legacyDraftUrl}}">继续旧版职场人士草稿</navigator>
 </view>

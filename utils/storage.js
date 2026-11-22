@@ -106,6 +106,20 @@ function removeRecord(id) {
   return listRecords(next)
 }
 
+function unlockBasicReport(id) {
+  const next = updateState((state) => {
+    const record = listRecords(state).find((item) => item.id === String(id))
+    if (!record) throw new Error('对应的测评记录已删除')
+    return {
+      ...state,
+      records: state.records.map((item) => String(item?.assessment_id || item?.id) === record.id
+        ? { ...item, basic_report_ad_completed: true }
+        : item)
+    }
+  })
+  return listRecords(next).find((item) => item.id === String(id))
+}
+
 function clearHistory() {
   updateState((state) => ({ ...state, records: [], reports: [] }))
 }
@@ -114,6 +128,9 @@ function getDraft(selection) {
   const drafts = readView().drafts.filter(hasDraftAnswers)
   if (!selection) return drafts[0] || null
   const id = getDraftId(selection)
+  if ((selection.assessmentType || selection.assessment_type) === 'professional') {
+    return drafts.find((draft) => getDraftId(draft) === id && id !== LEGACY_DRAFT_ID) || null
+  }
   return drafts.find((draft) => getDraftId(draft) === id) ||
     drafts.find((draft) => getDraftId(draft) === LEGACY_DRAFT_ID) || null
 }
@@ -179,6 +196,7 @@ module.exports = {
   saveRecord,
   getRecord,
   removeRecord,
+  unlockBasicReport,
   clearHistory,
   getDraftId,
   saveDraft,

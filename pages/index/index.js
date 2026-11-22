@@ -1,9 +1,11 @@
 const storage = require('../../utils/storage')
-const { RIASEC } = require('../../data/riasec')
+const { DIMENSION_ORDER, RIASEC } = require('../../data/riasec')
 const { formatDate } = require('../../utils/format')
-const { FEATURE_FLAGS } = require('../../config/product')
-const { USER_TYPE_LABELS } = require('../../services/assessment-selection')
+const { ASSESSMENT_TYPES, FEATURE_FLAGS } = require('../../config/product')
+const { USER_TYPE_LABELS, ASSESSMENT_TYPE_LABELS, normalizeUserType } = require('../../services/assessment-selection')
 const standardQuestionnaire = require('../../data/questionnaire-standard')
+const { questionnaire: professionalQuestionnaire } = require('../../data/questionnaire-professional')
+const { requiresBasicReportUnlock } = require('../../services/commercial-service')
 
 Page({
   data: {
@@ -11,16 +13,13 @@ Page({
     hasDraft: false,
     draftAnswered: 0,
     draftLabel: '',
+    draftUserType: '',
     recentRecord: null,
     standardQuestionCount: standardQuestionnaire.item_count,
-    typeCards: [
-      { code: 'R', name: '现实型', caption: '动手与实作', className: 'type-r' },
-      { code: 'I', name: '研究型', caption: '分析与探索', className: 'type-i' },
-      { code: 'A', name: '艺术型', caption: '创意与表达', className: 'type-a' },
-      { code: 'S', name: '社会型', caption: '助人与沟通', className: 'type-s' },
-      { code: 'E', name: '企业型', caption: '影响与推动', className: 'type-e' },
-      { code: 'C', name: '常规型', caption: '秩序与细节', className: 'type-c' }
-    ]
+    professionalQuestionCount: professionalQuestionnaire.item_count,
+    professionalAvailable: FEATURE_FLAGS.professionalAssessment,
+    draftIsProfessional: false,
+    typeCards: DIMENSION_ORDER.map((code) => RIASEC[code])
   },
 
   onShow() {
@@ -29,10 +28,12 @@ Page({
     let recentRecord = null
 
     if (recent && recent.primaryCode && RIASEC[recent.primaryCode]) {
+      const basicLocked = requiresBasicReportUnlock(recent)
       recentRecord = {
         id: recent.id,
-        code: recent.code,
-        primaryName: RIASEC[recent.primaryCode].name,
+        basicLocked,
+        code: basicLocked ? '' : recent.code,
+        primaryName: basicLocked ? '' : RIASEC[recent.primaryCode].name,
         completedAtText: formatDate(recent.completedAt)
       }
     }
@@ -40,20 +41,26 @@ Page({
     this.setData({
       hasDraft: Boolean(draft && draft.answers && Object.keys(draft.answers).length),
       draftAnswered: draft && draft.answers ? Object.keys(draft.answers).length : 0,
-      draftLabel: draft ? (USER_TYPE_LABELS[draft.user_type] || '旧版草稿') : '',
+      draftLabel: draft ? [ASSESSMENT_TYPE_LABELS[draft.assessment_type], USER_TYPE_LABELS[draft.user_type]].filter(Boolean).join(' · ') || '旧版草稿' : '',
+      draftUserType: normalizeUserType(draft?.user_type),
+      draftIsProfessional: draft?.assessment_type === 'professional',
       recentRecord
     })
   },
 
   startAssessment() {
-    wx.navigateTo({
-      url: '/pages/selection/selection?assessmentType=standard'
-    })
+    this.openAssessmentSelection(ASSESSMENT_TYPES.STANDARD)
   },
 
   openProfessionalAssessment() {
+    this.openAssessmentSelection(ASSESSMENT_TYPES.PROFESSIONAL)
+  },
+
+  openAssessmentSelection(assessmentType) {
+    const sameVersion = this.data.draftIsProfessional === (assessmentType === ASSESSMENT_TYPES.PROFESSIONAL)
+    const role = this.data.hasDraft && sameVersion ? this.data.draftUserType : ''
     wx.navigateTo({
-      url: '/pages/selection/selection?assessmentType=professional'
+      url: `/pages/selection/selection?assessmentType=${assessmentType}${role ? `&userType=${role}` : ''}`
     })
   },
 

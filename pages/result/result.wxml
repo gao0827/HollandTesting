@@ -1,4 +1,5 @@
 <import src="/components/type-representatives/type-representatives.wxml" />
+<import src="/components/interest-type-definition/interest-type-definition.wxml" />
 <view class="page-shell result-page safe-bottom">
   <view wx:if="{{loadFailed}}" class="card empty-state">
     <view class="empty-title">未找到这次测评结果</view>
@@ -7,6 +8,27 @@
   </view>
 
   <block wx:else>
+    <block wx:if="{{paidReport}}">
+      <view wx:if="{{basicLocked}}" class="result-hero">
+        <view class="result-primary">250 题测评已完成</view>
+        <view class="result-time">完成于 {{completedAtText}}</view>
+      </view>
+      <view class="card result-choice">
+        <view class="section-title">基础解读</view>
+        <view class="result-choice-copy">六维兴趣罗盘、分差与并列解读、人物案例和一项探索行动。完整观看一次广告后，本次基础解读可在本机重复查看。</view>
+        <button wx:if="{{basicLocked && basicAdUnitId}}" class="button-secondary result-report" disabled="{{basicBusy}}" bindtap="unlockBasicReport">{{basicBusy ? '处理中…' : (basicRewardPending ? '重试保存解锁状态' : '看广告解锁基础解读')}}</button>
+        <view wx:elif="{{basicLocked}}" class="result-choice-copy">广告解锁暂未开放。</view>
+        <view wx:else class="result-choice-copy">基础解读已解锁，见下方结果。</view>
+        <view wx:if="{{basicError}}" class="result-choice-copy">{{basicError}}</view>
+      </view>
+      <view wx:if="{{reportUrl}}" class="card result-choice">
+        <view class="section-title">进阶详解</view>
+        <view class="result-choice-copy">结合技能、价值观、工作环境与职业愿望，了解如何比较岗位，并获得 90／180 天行动路线。</view>
+        <button class="button-primary result-report" bindtap="openReport">查看报告内容与购买方式</button>
+      </view>
+    </block>
+
+    <block wx:if="{{!basicLocked}}">
     <view class="result-hero">
       <view class="result-kicker">你的霍兰德兴趣代码</view>
       <view class="result-code">{{record.code}}</view>
@@ -20,10 +42,17 @@
       <view>同分维度按 RIASEC 顺序展示。建议结合完整六维分布理解结果。</view>
     </view>
 
-    <button wx:if="{{reportUrl}}" class="button-primary result-report" bindtap="openReport">查看深度职业报告</button>
+    <button wx:if="{{reportUrl && !paidReport}}" class="button-primary result-report" bindtap="openReport">免费查看深度报告</button>
 
     <view class="section-block">
       <interest-chart dimensions="{{dimensions}}" />
+    </view>
+
+    <view wx:if="{{basicReading}}" class="card result-choice">
+      <view class="section-title">怎样读这次兴趣分布</view>
+      <view class="result-choice-copy">{{basicReading.comparison}}</view>
+      <view class="info-label">下一步 · {{basicReading.nextTitle}}</view>
+      <view class="info-text">{{basicReading.nextAction}}</view>
     </view>
 
     <view wx:if="{{representatives.length}}" class="section-block">
@@ -38,17 +67,9 @@
         class="analysis-card card"
         style="border-top-color: {{item.color}};"
       >
-        <view class="analysis-head">
-          <view class="analysis-heading">
-            <view class="analysis-title">{{item.code}} · {{item.name}}</view>
-            <view class="analysis-tagline">{{item.rank}}名 · {{item.tagline}}</view>
-          </view>
-        </view>
-        <view class="analysis-description">{{item.description}}</view>
+        <template is="interestTypeDefinition" data="{{type: item}}" />
         <view class="info-label">可能优势</view>
         <view class="info-text">{{item.strengthsText}}</view>
-        <view class="info-label">可探索领域</view>
-        <view class="info-text">{{item.careersText}}</view>
         <navigator
           wx:if="{{knowledgeEnabled}}"
           class="button-ghost result-knowledge"
@@ -64,6 +85,7 @@
       <view class="advice-item"><text class="advice-dot">2</text><text>把结果与能力、价值观、现实机会一起讨论。</text></view>
       <view class="advice-item"><text class="advice-dot">3</text><text>通过课程、项目或访谈，小成本验证真实兴趣。</text></view>
     </view>
+    </block>
 
     <view class="result-actions">
       <button class="button-primary" bindtap="startAgain">重新测评</button>

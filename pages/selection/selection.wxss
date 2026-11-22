@@ -1,20 +1,16 @@
-page {
-  background: #f5efe6;
-}
-
 .selection-page {
   padding-top: 24rpx;
-  color: #27344a;
+  color: var(--color-heading);
 }
 
 .selection-intro {
   display: flex;
   align-items: flex-start;
   padding: 32rpx 30rpx;
-  border: 1rpx solid #e4d3b8;
+  border: 1rpx solid var(--color-border);
   border-radius: 28rpx;
-  background: linear-gradient(145deg, #fffaf0, #f5e6cf);
-  box-shadow: 0 16rpx 38rpx rgba(76, 54, 31, 0.1);
+  background: linear-gradient(145deg, var(--color-surface), var(--color-accent-tint));
+  box-shadow: 0 16rpx 38rpx rgba(var(--color-heading-rgb), 0.1);
 }
 
 .intro-seal {
@@ -26,12 +22,11 @@ page {
   height: 68rpx;
   margin-right: 22rpx;
   border-radius: 18rpx;
-  background: linear-gradient(145deg, #a84737, #883127);
-  color: #fff7e8;
-  font-family: "STKaiti", "KaiTi", serif;
+  background: linear-gradient(145deg, var(--color-accent), var(--color-heading));
+  color: var(--color-white);
   font-size: 34rpx;
   font-weight: 900;
-  box-shadow: 0 8rpx 0 #64271f;
+  box-shadow: 0 8rpx 0 var(--color-heading);
 }
 
 .intro-copy {
@@ -40,8 +35,7 @@ page {
 }
 
 .intro-kicker {
-  color: #a13d30;
-  font-family: Georgia, serif;
+  color: var(--color-accent-strong);
   font-size: 16rpx;
   font-weight: 800;
   letter-spacing: 2.5rpx;
@@ -49,15 +43,14 @@ page {
 
 .intro-title {
   margin-top: 10rpx;
-  color: #223451;
-  font-family: "STSong", "SimSun", "PingFang SC", serif;
+  color: var(--color-heading);
   font-size: 36rpx;
   font-weight: 900;
 }
 
 .intro-description {
   margin-top: 14rpx;
-  color: #776a57;
+  color: var(--color-muted);
   font-size: 23rpx;
   line-height: 1.65;
 }
@@ -67,16 +60,16 @@ page {
   align-items: center;
   margin-top: 22rpx;
   padding: 20rpx 24rpx;
-  border: 1rpx solid #e0d1b9;
+  border: 1rpx solid var(--color-border);
   border-radius: 22rpx;
-  background: #fffaf2;
-  box-shadow: 0 8rpx 22rpx rgba(72, 51, 30, 0.07);
+  background: var(--color-surface);
+  box-shadow: 0 8rpx 22rpx rgba(var(--color-heading-rgb), 0.07);
 }
 
 .chosen-professional {
-  border-color: #bd6b58;
-  background: linear-gradient(145deg, #ac4938, #8f3329);
-  color: #fff8ea;
+  border-color: var(--color-accent-border);
+  background: linear-gradient(145deg, var(--color-accent), var(--color-heading));
+  color: var(--color-white);
 }
 
 .chosen-emblem {
@@ -88,16 +81,15 @@ page {
   height: 52rpx;
   margin-right: 18rpx;
   border-radius: 15rpx;
-  background: #eadcc5;
-  color: #294a72;
-  font-family: "STKaiti", "KaiTi", serif;
+  background: var(--color-accent-tint);
+  color: var(--color-accent-strong);
   font-size: 25rpx;
   font-weight: 900;
 }
 
 .chosen-professional .chosen-emblem {
-  background: rgba(255, 246, 224, 0.16);
-  color: #ffe9b8;
+  background: rgba(255, 255, 255, 0.16);
+  color: var(--color-on-dark);
 }
 
 .chosen-copy {
@@ -106,88 +98,73 @@ page {
 }
 
 .chosen-kicker {
-  color: #99866a;
+  color: var(--color-muted);
   font-size: 18rpx;
 }
 
 .chosen-professional .chosen-kicker {
-  color: rgba(255, 248, 234, 0.68);
+  color: rgba(255, 255, 255, 0.68);
 }
 
 .chosen-title {
   margin-top: 4rpx;
-  color: #293b58;
+  color: var(--color-heading);
   font-size: 27rpx;
   font-weight: 800;
 }
 
 .chosen-professional .chosen-title {
-  color: #fff8ea;
+  color: var(--color-white);
 }
 
 .chosen-status {
   flex: none;
   margin-left: 16rpx;
-  color: #3d7658;
+  color: var(--color-accent-strong);
   font-size: 19rpx;
   font-weight: 800;
 }
 
 .chosen-professional .chosen-status {
-  color: #ffe2a0;
+  color: var(--color-on-dark);
 }
 
 .selection-section {
-  display: flex;
-  align-items: center;
-  margin: 42rpx 4rpx 20rpx;
-}
-
-.section-step {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 54rpx;
-  height: 54rpx;
-  margin-right: 18rpx;
-  border: 1rpx solid #dcc8a8;
-  border-radius: 50%;
-  background: #fbf1dc;
-  color: #9a5d31;
-  font-size: 19rpx;
-  font-weight: 800;
+  margin: 30rpx 4rpx 18rpx;
 }
 
 .section-title {
-  color: #25334a;
-  font-family: "STSong", "SimSun", "PingFang SC", serif;
+  color: var(--color-heading);
   font-size: 30rpx;
   font-weight: 800;
 }
 
 .section-description {
   margin-top: 5rpx;
-  color: #95866f;
+  color: var(--color-muted);
   font-size: 21rpx;
 }
 
 .user-option-list {
   display: grid;
-  gap: 18rpx;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16rpx;
 }
 
 .user-option {
   display: flex;
-  align-items: center;
+  flex-direction: column;
+  align-items: stretch;
   box-sizing: border-box;
   width: 100%;
-  min-height: 126rpx;
+  min-width: 0;
+  min-height: 170rpx;
   margin: 0;
-  padding: 22rpx 24rpx;
-  border: 2rpx solid #e5dac8;
+  padding: 18rpx 19rpx;
+  border: 2rpx solid var(--color-border);
   border-radius: 22rpx;
-  background: #fffaf3;
-  color: #293a54;
+  background: var(--color-surface);
+  color: var(--color-heading);
   line-height: 1.3;
   text-align: left;
 }
@@ -198,9 +175,16 @@ page {
 }
 
 .user-option.option-selected {
-  border-color: #8aa0b5;
-  background: #f1f4f2;
-  box-shadow: 0 8rpx 0 #c4b596, 0 14rpx 24rpx rgba(62, 48, 32, 0.1);
+  border-color: var(--color-accent);
+  background: var(--color-accent-soft);
+  box-shadow: 0 5rpx 14rpx rgba(var(--color-heading-rgb), 0.1);
+}
+
+.option-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12rpx;
 }
 
 .option-emblem {
@@ -208,30 +192,27 @@ page {
   align-items: center;
   justify-content: center;
   flex: none;
-  width: 64rpx;
-  height: 64rpx;
-  margin-right: 20rpx;
-  border-radius: 18rpx;
-  background: #e7dbc6;
-  color: #2c4c72;
-  font-family: "STKaiti", "KaiTi", serif;
-  font-size: 28rpx;
+  width: 44rpx;
+  height: 44rpx;
+  border-radius: 12rpx;
+  background: var(--color-accent-tint);
+  color: var(--color-accent-strong);
+  font-size: 23rpx;
   font-weight: 900;
 }
 
 .option-copy {
-  flex: 1;
   min-width: 0;
 }
 
 .option-title {
-  font-size: 28rpx;
+  font-size: 26rpx;
   font-weight: 800;
 }
 
 .option-description {
-  margin-top: 8rpx;
-  color: #7e7566;
+  margin-top: 6rpx;
+  color: var(--color-muted);
   font-size: 22rpx;
   line-height: 1.5;
 }
@@ -241,19 +222,28 @@ page {
   align-items: center;
   justify-content: center;
   flex: none;
-  width: 38rpx;
-  height: 38rpx;
-  margin-left: 18rpx;
-  border: 2rpx solid #d9cdbb;
+  width: 31rpx;
+  height: 31rpx;
   border-radius: 50%;
-  color: #ffffff;
-  font-size: 22rpx;
+  background: var(--color-accent);
+  color: var(--color-white);
+  font-size: 19rpx;
   font-weight: 900;
 }
 
-.option-selected .option-check {
-  border-color: #a23e31;
-  background: #a23e31;
+.advisor-note {
+  margin-bottom: 10rpx;
+  color: var(--color-accent-strong);
+  font-size: 23rpx;
+  line-height: 1.6;
+}
+
+.legacy-draft-link {
+  margin-top: 20rpx;
+  padding: 16rpx;
+  color: var(--color-accent-strong);
+  font-size: 24rpx;
+  text-align: center;
 }
 
 .version-heading {
@@ -280,26 +270,26 @@ page {
 }
 
 .version-standard {
-  border: 2rpx solid #e2d3bb;
-  background: linear-gradient(150deg, #fffdf8, #f7ead8);
-  color: #263b5f;
-  box-shadow: 0 9rpx 0 #d4bd97;
+  border: 2rpx solid var(--color-border);
+  background: linear-gradient(150deg, var(--color-surface), var(--color-accent-tint));
+  color: var(--color-heading);
+  box-shadow: 0 9rpx 0 var(--color-accent-border);
 }
 
 .version-professional {
-  border: 2rpx solid #bd6b58;
-  background: linear-gradient(145deg, #ac4938, #8f3329);
-  color: #fff8ea;
-  box-shadow: 0 9rpx 0 #67261f;
+  border: 2rpx solid var(--color-accent-border);
+  background: linear-gradient(145deg, var(--color-accent), var(--color-heading));
+  color: var(--color-white);
+  box-shadow: 0 9rpx 0 var(--color-heading);
 }
 
 .version-selected {
-  outline: 5rpx solid rgba(45, 76, 112, 0.18);
+  outline: 5rpx solid rgba(var(--color-accent-rgb), 0.18);
   outline-offset: -5rpx;
 }
 
 .version-professional.version-selected {
-  outline-color: rgba(255, 228, 171, 0.36);
+  outline-color: rgba(255, 255, 255, 0.36);
 }
 
 .version-head {
@@ -315,15 +305,14 @@ page {
   width: 40rpx;
   height: 40rpx;
   border-radius: 11rpx;
-  background: rgba(204, 180, 140, 0.42);
-  font-family: "STKaiti", "KaiTi", serif;
+  background: var(--color-accent-tint);
   font-size: 21rpx;
   font-weight: 900;
 }
 
 .version-professional .version-emblem {
-  background: rgba(255, 246, 224, 0.16);
-  color: #ffe9b8;
+  background: rgba(255, 255, 255, 0.16);
+  color: var(--color-on-dark);
 }
 
 .version-status {
@@ -332,16 +321,15 @@ page {
 }
 
 .version-standard .version-status {
-  color: #3d7658;
+  color: var(--color-accent-strong);
 }
 
 .version-professional .version-status {
-  color: #ffe2a0;
+  color: var(--color-on-dark);
 }
 
 .version-title {
   margin-top: 18rpx;
-  font-family: "STSong", "SimSun", "PingFang SC", serif;
   font-size: 29rpx;
   font-weight: 900;
 }
@@ -360,13 +348,13 @@ page {
 
 .version-description {
   margin-top: 12rpx;
-  color: #746954;
+  color: var(--color-muted);
   font-size: 19rpx;
   line-height: 1.45;
 }
 
 .version-professional .version-description {
-  color: rgba(255, 248, 234, 0.75);
+  color: rgba(255, 255, 255, 0.75);
 }
 
 .option-pressed {
@@ -376,12 +364,12 @@ page {
 .selection-footer {
   margin-top: 36rpx;
   padding: 28rpx;
-  border-color: #e3d6c3;
-  background: #fffaf2;
+  border-color: var(--color-border);
+  background: var(--color-surface);
 }
 
 .selection-summary {
-  color: #786c59;
+  color: var(--color-muted);
   font-size: 22rpx;
   line-height: 1.5;
   text-align: center;
@@ -394,27 +382,27 @@ page {
   min-height: 92rpx;
   margin: 22rpx 0 0;
   border-radius: 20rpx;
-  background: linear-gradient(145deg, #294b76, #203b60);
-  color: #fffaf0;
+  background: linear-gradient(145deg, var(--color-accent), var(--color-heading));
+  color: var(--color-surface);
   font-size: 29rpx;
   font-weight: 800;
-  box-shadow: 0 9rpx 0 #152a46;
+  box-shadow: 0 9rpx 0 var(--color-heading);
 }
 
 .continue-button[disabled] {
-  background: #d8d0c2;
-  color: #9e9483;
-  box-shadow: 0 7rpx 0 #bdb3a3;
+  background: var(--color-disabled);
+  color: var(--color-disabled-text);
+  box-shadow: 0 7rpx 0 var(--color-disabled);
 }
 
 .professional-action {
-  background: linear-gradient(145deg, #a84737, #883127);
-  box-shadow: 0 9rpx 0 #64271f;
+  background: linear-gradient(145deg, var(--color-accent), var(--color-heading));
+  box-shadow: 0 9rpx 0 var(--color-heading);
 }
 
 .local-note {
   margin-top: 22rpx;
-  color: #9a8d7a;
+  color: var(--color-muted);
   font-size: 20rpx;
   line-height: 1.55;
   text-align: center;

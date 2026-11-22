@@ -1,0 +1,29 @@
+<template name="professionalProfile">
+  <view wx:if="{{professionalProfile.length}}" class="professional-profile">
+    <view class="section-title">专业版四组补充画像</view>
+    <view class="professional-copy">四组独立计分。百分比表示在各自作答量尺上的位置，可在同组内比较。技能自评可以用实际作品和反馈验证。</view>
+    <view wx:for="{{professionalProfile}}" wx:for-item="section" wx:key="id" class="card professional-section">
+      <view class="professional-heading">
+        <text>{{section.label}}</text>
+        <text class="professional-scale">{{section.scale}}</text>
+      </view>
+      <view class="professional-copy">{{section.summary}}</view>
+      <view wx:if="{{section.coverage}}" class="professional-coverage">{{section.coverage}}</view>
+      <view wx:for="{{section.groups}}" wx:for-item="group" wx:key="id" class="professional-score">
+        <view class="professional-score-label">
+          <text>{{group.name}}</text>
+          <text>{{group.percentage === null ? (group.answered ? '有效自评不足' : '暂无自评') : group.percentage + '%'}}</text>
+        </view>
+        <view wx:if="{{group.percentage !== null}}" class="professional-track" aria-hidden="true">
+          <view class="professional-fill" style="width:{{group.percentage}}%;"></view>
+        </view>
+        <view wx:if="{{group.answered < group.total}}" class="professional-coverage">已自评 {{group.answered}} / {{group.total}} 题</view>
+      </view>
+      <view class="professional-interpretation">{{section.interpretation}}</view>
+      <view wx:for="{{section.checks}}" wx:key="id" class="professional-check">
+        <view class="professional-check-title">验证 · {{item.name}}</view>
+        <view class="professional-copy">{{item.action}}</view>
+      </view>
+    </view>
+  </view>
+</template>

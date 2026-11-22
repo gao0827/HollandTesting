@@ -19,7 +19,7 @@
       <view wx:if="{{!drafts.length}}" class="data-copy">暂无未完成的测评。</view>
       <view wx:for="{{drafts}}" wx:key="id" class="draft-row">
         <view class="draft-details">
-          <view class="draft-label">{{item.label}}</view>
+          <view class="draft-label">{{item.label}}<text wx:if="{{item.assessmentTypeLabel}}"> · {{item.assessmentTypeLabel}}</text></view>
           <view class="data-copy">已答 {{item.answered}} 题 · {{item.updatedAt}}</view>
         </view>
         <view class="draft-actions">

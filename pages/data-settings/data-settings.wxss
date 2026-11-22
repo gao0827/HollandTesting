@@ -5,7 +5,7 @@
 
 .data-copy {
   margin-top: 10rpx;
-  color: #475569;
+  color: var(--color-text);
   font-size: 27rpx;
   line-height: 1.55;
 }
@@ -21,8 +21,8 @@
   flex: 1;
   padding: 16rpx;
   border-radius: 14rpx;
-  background: #eef2ff;
-  color: #4338ca;
+  background: var(--color-accent-soft);
+  color: var(--color-accent-strong);
   font-size: 26rpx;
 }
 
@@ -35,11 +35,11 @@
 .draft-row {
   margin-top: 20rpx;
   padding-top: 20rpx;
-  border-top: 1rpx solid #e2e8f0;
+  border-top: 1rpx solid var(--color-divider);
 }
 
 .draft-label {
-  color: #1e293b;
+  color: var(--color-heading);
   font-size: 30rpx;
   font-weight: 700;
 }

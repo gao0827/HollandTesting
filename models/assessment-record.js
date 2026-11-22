@@ -29,6 +29,7 @@ function createCompletedAssessmentRecord({
     assessment_type: selection.assessmentType,
     answers: toAnswerList(answers),
     riasec_scores: Object.assign({}, result.rawScores),
+    ...(result.professionalScores ? { professional_scores: result.professionalScores } : {}),
     top_codes: topCodes,
     completion_status: COMPLETION_STATUS.COMPLETED,
     created_at: completedAt,

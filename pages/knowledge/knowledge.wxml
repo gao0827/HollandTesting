@@ -1,3 +1,4 @@
+<import src="/components/interest-type-definition/interest-type-definition.wxml" />
 <view class="page-shell knowledge-page safe-bottom">
   <view class="knowledge-hero">
     <view class="knowledge-title">探索职业世界</view>
@@ -17,8 +18,7 @@
       >{{item.code}} {{item.name}}</button>
     </view>
     <view wx:if="{{selectedType}}" class="type-explanation" style="border-left-color: {{selectedType.color}};">
-      <view class="item-title">{{selectedType.tagline}}</view>
-      <view class="item-description">{{selectedType.description}}</view>
+      <template is="interestTypeDefinition" data="{{type: selectedType}}" />
     </view>
     <navigator
       wx:for="{{careers}}"

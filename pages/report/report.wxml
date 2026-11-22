@@ -1,6 +1,59 @@
 <import src="/components/type-representatives/type-representatives.wxml" />
+<import src="/components/professional-profile/professional-profile.wxml" />
 <view class="page-shell report-page safe-bottom">
-  <view wx:if="{{!report}}" class="card empty-state">
+  <block wx:if="{{!report && paidReport}}">
+    <view class="report-hero">
+      <view class="report-kicker">专业版 · 250 题</view>
+      <view class="checkout-title">进阶详解</view>
+      <view class="report-date"><text wx:if="{{roleLabel}}">{{roleLabel}} · </text>{{completedAtText}}</view>
+    </view>
+
+    <view class="card report-section">
+      <view class="section-title">完整报告包含什么</view>
+      <view class="checkout-feature">
+        <view class="report-item-title">四组补充画像</view>
+        <view class="report-copy">技能自评、职业价值观、工作环境和职业愿望，各有分数图表和验证方法。</view>
+      </view>
+      <view class="checkout-feature">
+        <view class="report-item-title">岗位比较与兴趣验证</view>
+        <view class="report-copy">从兴趣任务入手，对照技能证据和工作条件，比较两个岗位。</view>
+      </view>
+      <view class="checkout-feature">
+        <view class="report-item-title">90／180 天行动路线</view>
+        <view class="report-copy">根据测评角色安排探索任务、试做行动和可回顾的成果。</view>
+      </view>
+    </view>
+
+    <view class="card report-section">
+      <view class="section-title">购买本次报告</view>
+      <view class="report-copy">单次购买，权益对应这条测评记录。已购买可用同一微信账号查询并打开报告。</view>
+      <view wx:if="{{!checkoutAvailable}}" class="report-note">购买暂未开放。</view>
+      <block wx:else>
+        <view wx:if="{{checkoutState === 'pending'}}" class="report-note">订单待确认，请查询购买状态。</view>
+        <view wx:if="{{checkoutError}}" class="report-note" aria-live="polite">{{checkoutError}}</view>
+        <block wx:if="{{checkoutState === 'locked'}}">
+          <view class="checkout-price-row">
+            <text>本次报告价格</text>
+            <text class="checkout-price">{{priceText}}</text>
+          </view>
+          <button class="button-primary report-return" disabled="{{busy}}" bindtap="buyReport">{{busy ? '处理中…' : '单次购买'}}</button>
+        </block>
+        <block wx:if="{{checkoutState === 'unlocked'}}">
+          <view class="report-note">已确认购买权益</view>
+          <view class="report-copy">生成报告时会提交本次汇总分数、角色及题库版本。原始答卷保存在本机。</view>
+          <button class="button-primary report-return" disabled="{{busy}}" bindtap="loadPurchasedReport">{{busy ? '生成中…' : '同意并查看完整报告'}}</button>
+        </block>
+        <button
+          class="{{checkoutState === 'locked' || checkoutState === 'unlocked' ? 'button-ghost' : 'button-secondary'}} report-return"
+          disabled="{{busy}}"
+          bindtap="refreshOrder"
+        >{{busy ? '处理中…' : (checkoutState === 'locked' ? '刷新报价' : '查询价格与购买状态')}}</button>
+      </block>
+    </view>
+    <navigator class="button-ghost report-return" url="{{resultUrl}}" open-type="redirect">返回解读选项</navigator>
+  </block>
+
+  <view wx:elif="{{!report}}" class="card empty-state">
     <view class="section-title">{{enabled ? '当前记录无法生成报告' : '深度报告暂未开放'}}</view>
     <view wx:if="{{enabled}}" class="report-copy">请从历史记录中打开一项已完成的测评。</view>
     <navigator class="button-ghost report-return" url="/pages/history/history" open-type="redirect">查看历史记录</navigator>
@@ -19,6 +72,16 @@
     <view class="report-chart">
       <interest-chart dimensions="{{report.profile.dimensions}}" />
     </view>
+
+    <view wx:if="{{decisionSteps.length}}" class="card report-section">
+      <view class="section-title">用结果比较岗位</view>
+      <view wx:for="{{decisionSteps}}" wx:key="title" class="checkout-feature">
+        <view class="report-item-title">{{item.title}}</view>
+        <view class="report-copy">{{item.text}}</view>
+      </view>
+    </view>
+
+    <template is="professionalProfile" data="{{professionalProfile: professionalProfile}}" />
 
     <view class="card report-section">
       <view class="section-title">怎样理解 {{report.profile.code}} 组合</view>
@@ -56,7 +119,7 @@
         <button class="report-horizon {{horizon === '90' ? 'report-horizon-active' : ''}}" data-horizon="90" bindtap="selectHorizon">前 90 天</button>
         <button class="report-horizon {{horizon === '180' ? 'report-horizon-active' : ''}}" data-horizon="180" bindtap="selectHorizon">完整 180 天</button>
       </view>
-      <view class="report-save-actions">
+      <view wx:if="{{!paidReport}}" class="report-save-actions">
         <button class="button-secondary" disabled="{{savedHorizon === horizon}}" bindtap="saveReport">{{savedHorizon === horizon ? '报告已保存' : (savedHorizon ? '更新已保存的报告' : '保存报告到本机')}}</button>
         <button wx:if="{{savedHorizon}}" class="button-ghost" bindtap="deleteSavedReport">删除已保存版本</button>
       </view>
@@ -75,5 +138,6 @@
     </view>
 
     <view class="report-footer">本报告依据这次兴趣测评，用于职业探索。选择岗位时也请考虑技能、价值观和实际条件。</view>
+    <ad-custom wx:if="{{adUnitId}}" unit-id="{{adUnitId}}" binderror="hideAd" />
   </block>
 </view>

@@ -1,5 +1,8 @@
 const questions = require('../../data/questions')
 const standardQuestionnaire = require('../../data/questionnaire-standard')
+const professional = require('../../data/questionnaire-professional')
+const { ASSESSMENT_TYPES } = require('../../config/product')
+const { calculateProfessionalResult, isProfessionalAnswer } = require('../../services/professional-scoring')
 const { calculateResult, isComplete } = require('../../utils/scoring')
 const storage = require('../../utils/storage')
 const {
@@ -19,11 +22,15 @@ const RESPONSE_OPTIONS = standardQuestionnaire.response_options.map((item) => ({
   value: item.value,
   label: item.label
 }))
-const VALID_RESPONSE_VALUES = new Set(RESPONSE_OPTIONS.map((item) => item.value))
+const STANDARD = { questionnaire: standardQuestionnaire, questions }
 
 Page({
   data: {
     userTypeLabel: '',
+    assessmentTypeLabel: '标准版',
+    sectionLabel: '',
+    questionPrompt: '',
+    questionPrefix: '我会喜欢……',
     total: questions.length,
     currentIndex: 0,
     currentNumber: 1,
@@ -39,6 +46,7 @@ Page({
 
   answers: {},
   selection: null,
+  testDefinition: STANDARD,
   submitted: false,
   resumedDraftId: null,
   lastDraftKey: '',
@@ -47,16 +55,29 @@ Page({
     const selection = parseAssessmentSelection(options)
     if (!canStartAssessment(selection)) {
       wx.redirectTo({
-        url: '/pages/selection/selection?assessmentType=standard'
+        url: `/pages/selection/selection?assessmentType=${selection.assessmentType}`
       })
       return
     }
 
     this.selection = selection
-    this.setData({ userTypeLabel: selection.userTypeLabel })
-
     const draft = storage.getDraft(selection)
-    const compatibility = getDraftCompatibility(draft, standardQuestionnaire, selection)
+    if (selection.assessmentType === ASSESSMENT_TYPES.PROFESSIONAL) {
+      const legacy = professional.legacy
+      const usesLegacy = draft?.questionnaire_version === legacy.questionnaire.questionnaire_version
+        && getDraftCompatibility(draft, legacy.questionnaire, selection) === 'compatible'
+      this.testDefinition = usesLegacy ? legacy : professional
+    } else {
+      this.testDefinition = STANDARD
+    }
+    const { questionnaire, questions: items } = this.testDefinition
+    this.setData({
+      userTypeLabel: selection.userTypeLabel,
+      assessmentTypeLabel: selection.assessmentTypeLabel,
+      total: items.length
+    })
+
+    const compatibility = getDraftCompatibility(draft, questionnaire, selection)
 
     if (compatibility === 'empty') {
       this.loadAssessment({}, 0)
@@ -67,7 +88,7 @@ Page({
     if (['questionnaire_mismatch', 'version_mismatch', 'schema_mismatch'].includes(compatibility)) {
       wx.showModal({
         title: '题库版本已更新',
-        content: '原答题进度与当前 60 题版本不兼容，不能混合计分。你可以使用新题库重新开始，已完成的历史记录不会受到影响。',
+        content: '原答题进度与当前题库不兼容，不能混合计分。你可以使用新题库重新开始，已完成的历史记录不会受到影响。',
         confirmText: '使用新题库',
         cancelText: '返回选择',
         success: (result) => {
@@ -81,18 +102,21 @@ Page({
       return
     }
 
-    const normalizedAnswers = normalizeAnswers(questions, draft.answers, standardQuestionnaire)
-    const answeredCount = countAnswered(questions, normalizedAnswers, standardQuestionnaire)
+    const normalizedAnswers = normalizeAnswers(items, draft.answers, questionnaire)
+    const answeredCount = Object.keys(normalizedAnswers).length
+    const usesLegacyProfessional = this.testDefinition === professional.legacy
 
     wx.showModal({
-      title: compatibility === 'legacy' ? '继续旧版答题进度？' : '继续上次测评？',
-      content: `已完成 ${answeredCount} / ${questions.length} 题。继续后会按当前身份保存。`,
+      title: usesLegacyProfessional || compatibility === 'legacy' ? '继续旧版答题进度？' : '继续上次测评？',
+      content: usesLegacyProfessional
+        ? `已完成 ${answeredCount} / ${items.length} 题。可以按原题目续答，改用新版会清空本次答题进度。`
+        : `已完成 ${answeredCount} / ${items.length} 题。继续后会按当前身份保存。`,
       confirmText: '继续作答',
-      cancelText: '重新开始',
+      cancelText: usesLegacyProfessional ? '改用新版' : '重新开始',
       success: (result) => {
         if (result.confirm) {
           this.resumedDraftId = draftId
-          this.loadAssessment(normalizedAnswers, getResumeIndex(draft, questions))
+          this.loadAssessment(normalizedAnswers, getResumeIndex(draft, items))
         } else {
           this.restartAssessment(draftId)
         }
@@ -103,6 +127,7 @@ Page({
   restartAssessment(draftId) {
     try {
       storage.clearDraft(draftId)
+      if (this.testDefinition === professional.legacy) this.testDefinition = professional
       this.resumedDraftId = null
       this.lastDraftKey = ''
       this.loadAssessment({}, 0)
@@ -113,15 +138,18 @@ Page({
   },
 
   loadAssessment(answers, index) {
-    this.answers = normalizeAnswers(questions, answers, standardQuestionnaire)
-    const safeIndex = Math.min(questions.length - 1, Math.max(0, index))
+    const { questions: items, questionnaire } = this.testDefinition
+    this.answers = normalizeAnswers(items, answers, questionnaire)
+    const safeIndex = Math.min(items.length - 1, Math.max(0, index))
     this.updateQuestion(safeIndex)
   },
 
   updateQuestion(index) {
-    const question = questions[index]
+    const { questions: items, questionnaire, sections } = this.testDefinition
+    const question = items[index]
+    const section = sections?.find((entry) => entry.id === question.section)
     const currentAnswer = Number(this.answers[question.id]) || 0
-    const responseOptions = RESPONSE_OPTIONS.map((item) => ({
+    const responseOptions = question.options.map((item) => ({
       value: item.value,
       label: item.label,
       selected: item.value === currentAnswer
@@ -131,18 +159,21 @@ Page({
       currentIndex: index,
       currentNumber: index + 1,
       currentQuestion: question,
+      sectionLabel: section?.label || '',
+      questionPrompt: section?.prompt || '请按真实兴趣作答，而不是按能力或期待作答',
+      questionPrefix: !section || section.id === 'interest' ? '我会喜欢……' : '',
       currentAnswer,
-      answeredCount: countAnswered(questions, this.answers, standardQuestionnaire),
-      progress: Math.round(((index + 1) / questions.length) * 100),
+      answeredCount: countAnswered(items, this.answers, questionnaire),
+      progress: Math.round(((index + 1) / items.length) * 100),
       responseOptions,
       canGoBack: index > 0,
-      isLast: index === questions.length - 1
+      isLast: index === items.length - 1
     })
   },
 
   selectAnswer(event) {
     const value = Number(event.currentTarget.dataset.value)
-    if (!VALID_RESPONSE_VALUES.has(value) || !this.data.currentQuestion) return
+    if (!this.data.currentQuestion || !isProfessionalAnswer(this.data.currentQuestion, value)) return
 
     this.answers[this.data.currentQuestion.id] = value
     this.saveCurrentDraft(this.data.currentIndex)
@@ -151,10 +182,11 @@ Page({
 
   saveCurrentDraft(currentIndex) {
     if (!this.selection) return
+    const { questionnaire, questions: items } = this.testDefinition
     const draft = createDraftSnapshot({
-      questionnaire: standardQuestionnaire,
+      questionnaire,
       selection: this.selection,
-      questions,
+      questions: items,
       answers: this.answers,
       currentIndex,
       updatedAt: Date.now()
@@ -180,7 +212,7 @@ Page({
 
   goNext() {
     if (!this.data.currentAnswer) {
-      wx.showToast({ title: '请先选择你的真实感受', icon: 'none' })
+      wx.showToast({ title: '请先选择一项答案', icon: 'none' })
       return
     }
 
@@ -196,19 +228,24 @@ Page({
 
   submitAssessment() {
     if (this.submitted) return
-    if (!isComplete(questions, this.answers)) {
-      const missingIndex = questions.findIndex((question) => !this.answers[question.id])
+    const { questions: items, questionnaire } = this.testDefinition
+    const isProfessional = questionnaire.assessment_type === ASSESSMENT_TYPES.PROFESSIONAL
+    const complete = isProfessional
+      ? items.every((question) => isProfessionalAnswer(question, this.answers[question.id]))
+      : isComplete(questions, this.answers)
+    if (!complete) {
+      const missingIndex = items.findIndex((question) => !isProfessionalAnswer(question, this.answers[question.id]))
       if (missingIndex >= 0) this.updateQuestion(missingIndex)
       wx.showToast({ title: '还有题目没有完成', icon: 'none' })
       return
     }
 
-    const result = calculateResult(questions, this.answers, {
-      scoringVersion: standardQuestionnaire.scoring_version
-    })
+    const result = isProfessional
+      ? calculateProfessionalResult(this.answers, this.testDefinition)
+      : calculateResult(questions, this.answers, { scoringVersion: standardQuestionnaire.scoring_version })
     const completedAt = Date.now()
     const record = createCompletedAssessmentRecord({
-      questionnaire: standardQuestionnaire,
+      questionnaire,
       selection: this.selection,
       answers: this.answers,
       result,

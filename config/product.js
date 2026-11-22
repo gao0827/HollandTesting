@@ -1,5 +1,9 @@
 const USER_TYPES = Object.freeze({
   STUDENT: 'student',
+  CAREER_STARTER: 'career_starter',
+  CAREER_TRANSITION: 'career_transition',
+  CAREER_ADVISOR: 'career_advisor',
+  // 已保存的职场人士记录和草稿沿用原角色标识。
   WORKING_PROFESSIONAL: 'working_professional'
 })
 
@@ -16,7 +20,7 @@ const COMPLETION_STATUS = Object.freeze({
 
 const FEATURE_FLAGS = Object.freeze({
   standardAssessment: true,
-  professionalAssessment: false,
+  professionalAssessment: true,
   deepReport: true,
   knowledgeBase: true,
   advertising: false,

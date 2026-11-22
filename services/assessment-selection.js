@@ -4,8 +4,15 @@ const {
   FEATURE_FLAGS
 } = require('../config/product')
 
+const ASSESSMENT_ROLE_OPTIONS = Object.freeze([
+  { value: USER_TYPES.STUDENT, emblem: '学', title: '高中生、大学生', description: '专业选择、职业探索' },
+  { value: USER_TYPES.CAREER_STARTER, emblem: '职', title: '职场新人', description: '了解职业偏好、岗位方向' },
+  { value: USER_TYPES.CAREER_TRANSITION, emblem: '转', title: '职场转型人群', description: '重新探索工作方向' },
+  { value: USER_TYPES.CAREER_ADVISOR, emblem: '辅', title: '家长、职业辅导者', description: '辅助讨论专业与职业选择' }
+].map(Object.freeze))
+
 const USER_TYPE_LABELS = Object.freeze({
-  [USER_TYPES.STUDENT]: '学生',
+  ...Object.fromEntries(ASSESSMENT_ROLE_OPTIONS.map(({ value, title }) => [value, title])),
   [USER_TYPES.WORKING_PROFESSIONAL]: '职场人士'
 })
 
@@ -15,7 +22,7 @@ const ASSESSMENT_TYPE_LABELS = Object.freeze({
 })
 
 function normalizeUserType(value) {
-  return Object.prototype.hasOwnProperty.call(USER_TYPE_LABELS, value) ? value : ''
+  return typeof value === 'string' && Object.prototype.hasOwnProperty.call(USER_TYPE_LABELS, value) ? value : ''
 }
 
 function normalizeAssessmentType(value) {
@@ -45,7 +52,6 @@ function canStartAssessment(selection) {
   return Boolean(
     selection &&
     selection.isUserTypeValid &&
-    selection.assessmentType === ASSESSMENT_TYPES.STANDARD &&
     selection.isAssessmentAvailable
   )
 }
@@ -56,6 +62,7 @@ function buildAssessmentUrl(selection) {
 }
 
 module.exports = {
+  ASSESSMENT_ROLE_OPTIONS,
   USER_TYPE_LABELS,
   ASSESSMENT_TYPE_LABELS,
   normalizeUserType,

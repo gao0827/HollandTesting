@@ -42,15 +42,25 @@ function loadPage(route) {
 
 const distinct = { R: 2, I: 5, A: 4, S: 3, E: 2, C: 1 }
 
-test('学生与职场路线使用不同活动和阶段成果，覆盖 90 天与 180 天', () => {
+test('四种角色各有 90 天与 180 天行动路线，兼容旧职场路线', () => {
   const student = buildDeepReport(makeRecord(USER_TYPES.STUDENT, distinct))
   const employee = buildDeepReport(makeRecord(USER_TYPES.WORKING_PROFESSIONAL, distinct))
   assert.equal(student.profile.code, 'IAS')
   assert.equal(student.plan.label, '学生路线')
   assert.equal(employee.plan.label, '职场路线')
-  assert.deepEqual(student.profile, employee.profile)
-  assert.notDeepEqual(student.plan.milestones, employee.plan.milestones)
-  for (const report of [student, employee]) {
+  const newRoutes = [
+    [USER_TYPES.CAREER_STARTER, '职场新人路线'],
+    [USER_TYPES.CAREER_TRANSITION, '职场转型路线'],
+    [USER_TYPES.CAREER_ADVISOR, '家长与辅导者路线']
+  ].map(([role, label]) => {
+    const report = buildDeepReport(makeRecord(role, distinct))
+    assert.equal(report.plan.label, label)
+    return report
+  })
+  const reports = [student, employee, ...newRoutes]
+  assert.equal(new Set(reports.map((report) => report.plan.milestones[0].title)).size, reports.length)
+  for (const report of reports) {
+    assert.deepEqual(report.profile, student.profile)
     assert.equal(report.plan.milestones.length, 6)
     assert.match(report.plan.milestones[2].period, /90/)
     assert.match(report.plan.milestones[5].period, /180/)

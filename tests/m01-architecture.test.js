@@ -38,7 +38,7 @@ test('所有已注册页面均具备原生小程序四件套', () => {
 
 test('商业化和未完成能力默认关闭', () => {
   assert.equal(FEATURE_FLAGS.standardAssessment, true)
-  assert.equal(FEATURE_FLAGS.professionalAssessment, false)
+  assert.equal(FEATURE_FLAGS.professionalAssessment, true)
   assert.equal(FEATURE_FLAGS.advertising, false)
   assert.equal(FEATURE_FLAGS.payments, false)
   assert.equal(PRODUCT_CONFIG.dataSchemaVersion, '1.0.0')

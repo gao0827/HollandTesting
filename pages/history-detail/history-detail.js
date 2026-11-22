@@ -1,11 +1,13 @@
 const storage = require('../../utils/storage')
 const { RIASEC } = require('../../data/riasec')
 const { formatDate } = require('../../utils/format')
+const { requiresBasicReportUnlock } = require('../../services/commercial-service')
 
 Page({
   data: {
     record: null,
     primary: null,
+    basicLocked: false,
     dimensions: [],
     topTypes: [],
     completedAtText: '',
@@ -21,6 +23,10 @@ Page({
     const record = this.recordId ? storage.getRecord(this.recordId) : null
     if (!record || !record.primaryCode || !RIASEC[record.primaryCode]) {
       this.setData({ loadFailed: true })
+      return
+    }
+    if (requiresBasicReportUnlock(record)) {
+      this.setData({ basicLocked: true, record: { id: record.id }, completedAtText: formatDate(record.completedAt), loadFailed: false })
       return
     }
 
@@ -40,6 +46,7 @@ Page({
 
     this.setData({
       record,
+      basicLocked: false,
       primary: RIASEC[record.primaryCode],
       dimensions,
       topTypes,

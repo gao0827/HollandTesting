@@ -1,36 +1,3 @@
-<view class="career-scene academy-scene" role="img" aria-label="书卷、远山、山径、书院亭阁和指南针构成的东方职业探索原创插画">
-  <view class="window-lattice" aria-hidden="true"></view>
-  <view class="scene-sun"></view>
-  <view class="academy-mountain mountain-back"></view>
-  <view class="academy-mountain mountain-middle"></view>
-  <view class="academy-mountain mountain-front"></view>
-  <view class="mountain-path"></view>
-
-  <view class="academy-pavilion">
-    <view class="pavilion-roof"></view>
-    <view class="pavilion-beam"></view>
-    <view class="pavilion-column column-left"></view>
-    <view class="pavilion-column column-right"></view>
-  </view>
-
-  <view class="culture-scroll">
-    <view class="scroll-paper"></view>
-    <view class="scroll-axis axis-left"></view>
-    <view class="scroll-axis axis-right"></view>
-    <view class="scroll-mark">志</view>
-  </view>
-
-  <view class="culture-book">
-    <view class="book-page book-left"></view>
-    <view class="book-page book-right"></view>
-    <view class="book-spine"></view>
-  </view>
-
-  <view class="culture-spark spark-one">✦</view>
-  <view class="culture-spark spark-two">✦</view>
-
-  <view class="mini-compass">
-    <view class="mini-needle"></view>
-    <view class="mini-center"></view>
-  </view>
+<view class="career-scene" role="img" aria-label="一位年轻人比较不同职业方向，并在清单上安排下一步">
+  <image class="career-scene-image" src="/assets/home/career-decision.jpg" mode="aspectFill" aria-hidden="true" />
 </view>

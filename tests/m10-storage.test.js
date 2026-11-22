@@ -114,7 +114,7 @@ test('学生与职场分别续答，完成或删除一份草稿只影响对应�
   assert.deepEqual(storage.getDraft(worker), worker)
   const settings = loadPage('data-settings')
   settings.onShow()
-  assert.match(settings.data.drafts.find((item) => item.label === '学生').url, /userType=student/)
+  assert.match(settings.data.drafts.find((item) => item.label === '高中生、大学生').url, /userType=student/)
 
   storage.saveRecord(record('done'), [storage.getDraftId(student)])
   assert.equal(storage.getDraft(student), null)

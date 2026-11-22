@@ -1,7 +1,8 @@
 const storage = require('../../utils/storage')
 const { RIASEC } = require('../../data/riasec')
 const { formatDate } = require('../../utils/format')
-const { USER_TYPE_LABELS } = require('../../services/assessment-selection')
+const { USER_TYPE_LABELS, ASSESSMENT_TYPE_LABELS } = require('../../services/assessment-selection')
+const { requiresBasicReportUnlock } = require('../../services/commercial-service')
 
 Page({
   data: {
@@ -24,16 +25,19 @@ Page({
 
     const records = storage.readHistory()
       .filter((record) => record && record.primaryCode && RIASEC[record.primaryCode])
-      .map((record) => ({
-        id: record.id,
-        code: record.code,
-        primaryName: RIASEC[record.primaryCode].name,
-        primaryColor: RIASEC[record.primaryCode].color,
-        primaryLightColor: RIASEC[record.primaryCode].lightColor,
-        userTypeLabel: USER_TYPE_LABELS[record.user_type] || '',
-        hasSavedReport: reportIds.has(record.id),
-        completedAtText: formatDate(record.completedAt)
-      }))
+      .map((record) => {
+        const basicLocked = requiresBasicReportUnlock(record)
+        return {
+          id: record.id,
+          code: basicLocked ? '250' : record.code,
+          primaryName: basicLocked ? '' : RIASEC[record.primaryCode].name,
+          primaryColor: basicLocked ? '#475569' : RIASEC[record.primaryCode].color,
+          primaryLightColor: basicLocked ? '#e2e8f0' : RIASEC[record.primaryCode].lightColor,
+          userTypeLabel: [USER_TYPE_LABELS[record.user_type], ASSESSMENT_TYPE_LABELS[record.assessment_type]].filter(Boolean).join(' · '),
+          hasSavedReport: reportIds.has(record.id),
+          completedAtText: formatDate(record.completedAt)
+        }
+      })
 
     this.setData({ records, loadFailed: false })
   },

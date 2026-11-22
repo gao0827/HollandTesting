@@ -12,11 +12,14 @@ function normalizeAnswers(questions, answers, questionnaire) {
     : {}
   const validQuestionIds = getValidQuestionIds(questions)
   const validResponseValues = getValidResponseValues(questionnaire)
+  const optionsById = new Map((questions || []).map((item) => [item.id, item.options]))
   const normalized = {}
 
   Object.keys(source).forEach((questionId) => {
     const value = Number(source[questionId])
-    if (validQuestionIds.has(questionId) && validResponseValues.has(value)) {
+    const options = optionsById.get(questionId)
+    const valid = options ? options.some((option) => Number(option.value) === value) : validResponseValues.has(value)
+    if (validQuestionIds.has(questionId) && valid) {
       normalized[questionId] = value
     }
   })

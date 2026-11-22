@@ -25,7 +25,7 @@
     >
       <view class="record-code" style="background: {{item.primaryLightColor}}; color: {{item.primaryColor}};">{{item.code}}</view>
       <view class="record-content">
-        <view class="record-title">{{item.primaryName}}主导</view>
+        <view class="record-title">{{item.primaryName ? item.primaryName + '主导' : '测评已完成'}}</view>
         <view class="record-time">{{item.completedAtText}}</view>
         <view wx:if="{{item.userTypeLabel || item.hasSavedReport}}" class="record-time">
           {{item.userTypeLabel}}<text wx:if="{{item.hasSavedReport}}">{{item.userTypeLabel ? ' · ' : ''}}报告已保存</text>

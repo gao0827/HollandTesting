@@ -11,13 +11,13 @@
 
 .history-subtitle {
   margin-top: 10rpx;
-  color: #94a3b8;
+  color: var(--color-muted);
   font-size: 24rpx;
 }
 
 .clear-action {
   padding: 12rpx 4rpx;
-  color: #be123c;
+  color: var(--color-danger);
   font-size: 26rpx;
 }
 
@@ -55,7 +55,7 @@
 
 .record-title {
   overflow: hidden;
-  color: #111827;
+  color: var(--color-heading);
   font-size: 29rpx;
   font-weight: 700;
   text-overflow: ellipsis;
@@ -64,13 +64,13 @@
 
 .record-time {
   margin-top: 10rpx;
-  color: #94a3b8;
+  color: var(--color-muted);
   font-size: 23rpx;
 }
 
 .record-delete {
   padding: 18rpx 4rpx 18rpx 20rpx;
-  color: #94a3b8;
+  color: var(--color-muted);
   font-size: 24rpx;
 }
 
@@ -79,20 +79,20 @@
 }
 
 .empty-icon {
-  color: #a5b4fc;
+  color: var(--color-accent-border);
   font-size: 80rpx;
 }
 
 .empty-title {
   margin-top: 18rpx;
-  color: #111827;
+  color: var(--color-heading);
   font-size: 34rpx;
   font-weight: 700;
 }
 
 .empty-copy {
   margin-top: 16rpx;
-  color: #64748b;
+  color: var(--color-muted);
   font-size: 25rpx;
   line-height: 1.6;
 }
@@ -111,8 +111,8 @@
   margin: 0;
   padding: 12rpx 16rpx;
   border-radius: 12rpx;
-  color: #4338ca;
-  background: #eef2ff;
+  color: var(--color-accent-strong);
+  background: var(--color-accent-soft);
   line-height: 1.4;
 }
 

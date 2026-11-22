@@ -74,6 +74,15 @@ test('完整测评会保留另一身份的草稿，报告可保存、重新打�
   other.selectAnswer(event({ value: 2 }))
   other.onUnload()
 
+  home.onShow()
+  home.startAssessment()
+  assert.equal(navigation.pop(), '/pages/selection/selection?assessmentType=standard&userType=working_professional')
+  const fromOldDraft = pageInstance('pages/selection/selection')
+  fromOldDraft.onLoad(worker)
+  assert.equal(fromOldDraft.data.userOptions.length, 4)
+  assert.equal(fromOldDraft.data.canContinue, false)
+  assert.equal(fromOldDraft.data.legacyDraftUrl, '/pages/assessment/assessment?userType=working_professional&assessmentType=standard')
+
   const resumed = pageInstance('pages/assessment/assessment')
   resumed.onLoad(student)
   assert.equal(resumed.data.currentIndex, 1)

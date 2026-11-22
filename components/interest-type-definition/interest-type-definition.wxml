@@ -1,0 +1,17 @@
+<template name="interestTypeDefinition">
+  <view class="interest-definition">
+    <view class="interest-definition-image" aria-hidden="true">
+      <image class="interest-definition-art" src="{{type.illustration}}" mode="aspectFill" />
+    </view>
+    <view class="interest-definition-copy">
+      <view class="interest-definition-heading">
+        <text class="interest-definition-code" style="color:{{type.color}}">{{type.code}}</text>
+        <text>{{type.name}}</text>
+        <text wx:if="{{type.rank}}" class="interest-definition-rank">{{type.rank}}名</text>
+      </view>
+      <view class="interest-definition-english">{{type.englishName}}</view>
+      <view class="interest-definition-summary">{{type.activitySummary}}</view>
+      <view class="interest-definition-careers"><text class="interest-definition-label">职业探索</text> {{type.exploration}}</view>
+    </view>
+  </view>
+</template>

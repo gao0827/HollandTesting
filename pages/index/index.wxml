@@ -1,4 +1,5 @@
-<view class="page-shell home-page academy-theme safe-bottom">
+<import src="/components/interest-type-definition/interest-type-definition.wxml" />
+<view class="page-shell home-page home-theme safe-bottom">
   <view class="top-bar">
     <view class="brand-row">
       <view class="brand-mark">职</view>
@@ -13,10 +14,9 @@
     <view class="hero-lattice" aria-hidden="true"></view>
     <view class="hero-main">
       <view class="hero-copy">
-        <view class="hero-kicker">观兴趣 · 知所长 · 向未来</view>
-        <view class="hero-title">看见你的热爱</view>
-        <view class="hero-title hero-title-second">遇见未来的方向</view>
-        <view class="hero-subtitle">循霍兰德 RIASEC 六维框架，绘一张属于你的职业兴趣地图。</view>
+        <view class="hero-kicker">霍兰德 RIASEC</view>
+        <view class="hero-title" aria-role="heading">看清职业兴趣<text class="hero-title-second">探索职业方向</text></view>
+        <view class="hero-subtitle">看懂六维兴趣画像，了解值得尝试的职业与下一步行动。</view>
       </view>
       <career-explorer-illustration class="hero-illustration" />
     </view>
@@ -35,7 +35,7 @@
           <view class="entry-description">六维兴趣画像</view>
         </view>
         <view class="entry-foot">
-          <view class="entry-availability">{{hasDraft ? '继续答题' : '开始测评'}}</view>
+          <view class="entry-availability">{{hasDraft && !draftIsProfessional ? '继续答题' : '开始测评'}}</view>
           <text class="entry-arrow">→</text>
         </view>
       </button>
@@ -46,19 +46,19 @@
             <view class="entry-emblem professional-emblem">专</view>
             <view class="entry-title">专业版</view>
           </view>
-          <view class="entry-state professional-state">规划中</view>
+          <view class="entry-state professional-state">{{professionalAvailable ? '已开放' : '暂未开放'}}</view>
         </view>
         <view class="entry-main">
-          <view class="entry-count"><text>250</text><text class="count-unit">题</text></view>
+          <view class="entry-count"><text>{{professionalQuestionCount}}</text><text class="count-unit">题</text></view>
           <view class="entry-description">多维职业探索</view>
         </view>
         <view class="entry-foot">
-          <view class="entry-availability professional-availability">查看规划</view>
+          <view class="entry-availability professional-availability">{{hasDraft && draftIsProfessional ? '继续答题' : '开始测评'}}</view>
           <text class="entry-arrow professional-arrow">→</text>
         </view>
       </button>
     </view>
-    <view wx:if="{{hasDraft}}" class="draft-hint">最近草稿 · {{draftLabel}} · {{draftAnswered}} / {{standardQuestionCount}} 题</view>
+    <view wx:if="{{hasDraft}}" class="draft-hint">最近草稿 · {{draftLabel}} · {{draftAnswered}} / {{draftIsProfessional ? professionalQuestionCount : standardQuestionCount}} 题</view>
   </view>
 
   <view class="map-section card">
@@ -81,11 +81,9 @@
     <text class="section-caption">没有好坏之分</text>
   </view>
 
-  <view class="type-grid">
-    <view wx:for="{{typeCards}}" wx:key="code" class="type-card {{item.className}}" data-type="{{item.code}}" bindtap="openInterestType">
-      <text class="type-code">{{item.code}}</text>
-      <text class="type-name">{{item.name}}</text>
-      <text class="type-caption">{{item.caption}}</text>
+  <view class="type-list">
+    <view wx:for="{{typeCards}}" wx:key="code" class="type-card" data-type="{{item.code}}" bindtap="openInterestType">
+      <template is="interestTypeDefinition" data="{{type: item}}" />
     </view>
   </view>
 
@@ -96,7 +94,7 @@
   <view wx:if="{{recentRecord}}" class="recent-card card" bindtap="openRecent">
     <view class="recent-content">
       <view class="recent-label">最近一次结果</view>
-      <view class="recent-title">{{recentRecord.code}} · {{recentRecord.primaryName}}</view>
+      <view class="recent-title">{{recentRecord.basicLocked ? '250 题测评已完成' : recentRecord.code + ' · ' + recentRecord.primaryName}}</view>
       <view class="recent-time">{{recentRecord.completedAtText}}</view>
     </view>
     <text class="recent-arrow">›</text>
@@ -109,7 +107,7 @@
 
   <view class="privacy-card">
     <view class="privacy-title">本地计算，不上传答案</view>
-    <view class="privacy-copy">当前版本不连接后台、数据库或付费接口。</view>
+    <view class="privacy-copy">答题和基础结果在本机完成。</view>
   </view>
 
   <view class="disclaimer">当前题目为自编体验题，仅用于兴趣探索与产品测试，不是官方职业量表，也不构成职业、心理或医学诊断。</view>

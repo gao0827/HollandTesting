@@ -1,0 +1,74 @@
+.interest-definition {
+  display: flex;
+  align-items: flex-start;
+  gap: 16rpx;
+}
+
+.interest-definition-image {
+  position: relative;
+  flex: 0 0 104rpx;
+  width: 104rpx;
+  height: 104rpx;
+  overflow: hidden;
+  border-radius: 14rpx;
+  background: var(--color-accent-soft);
+}
+
+.interest-definition-art {
+  display: block;
+  width: 100%;
+  height: 100%;
+  filter: saturate(0.62);
+}
+
+.interest-definition-image::after {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  background: rgba(var(--color-accent-rgb), 0.14);
+  content: '';
+  pointer-events: none;
+}
+
+.interest-definition-copy {
+  flex: 1;
+  min-width: 0;
+}
+
+.interest-definition-heading {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 10rpx;
+  color: var(--color-heading);
+  font-size: 30rpx;
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+.interest-definition-code {
+  font-weight: 800;
+}
+
+.interest-definition-english,
+.interest-definition-rank {
+  margin-top: 3rpx;
+  color: var(--color-muted);
+  font-size: 22rpx;
+  font-weight: 500;
+}
+
+.interest-definition-summary,
+.interest-definition-careers {
+  margin-top: 8rpx;
+  color: var(--color-text);
+  font-size: 25rpx;
+  line-height: 1.55;
+}
+
+.interest-definition-label {
+  color: var(--color-heading);
+  font-weight: 700;
+}

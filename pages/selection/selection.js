@@ -3,51 +3,50 @@ const {
   ASSESSMENT_TYPES
 } = require('../../config/product')
 const {
-  normalizeUserType,
+  ASSESSMENT_ROLE_OPTIONS,
   normalizeAssessmentType,
   parseAssessmentSelection,
   buildAssessmentUrl
 } = require('../../services/assessment-selection')
+const standard = require('../../data/questionnaire-standard')
+const { questionnaire: professional } = require('../../data/questionnaire-professional')
+const storage = require('../../utils/storage')
 
-const USER_OPTIONS = Object.freeze([
-  Object.freeze({
-    value: USER_TYPES.STUDENT,
-    emblem: '学',
-    title: '学生',
-    description: '探索专业、学习方向与未来职业可能性'
-  }),
-  Object.freeze({
-    value: USER_TYPES.WORKING_PROFESSIONAL,
-    emblem: '职',
-    title: '职场人士',
-    description: '梳理优势偏好、岗位方向与发展路径'
-  })
-])
+function getSelectableRole(value) {
+  return ASSESSMENT_ROLE_OPTIONS.find((role) => role.value === value)?.value || ''
+}
 
 Page({
   data: {
     userType: '',
     assessmentType: ASSESSMENT_TYPES.STANDARD,
     userOptions: [],
+    legacyDraftUrl: '',
+    isAdvisor: false,
     selectedVersionEmblem: '标',
     selectedVersionLabel: '标准版',
     selectedVersionCount: 60,
     selectedVersionStatus: '已开放',
     canContinue: false,
-    actionText: '请选择你的身份',
+    actionText: '请选择你的角色',
     selectionSummary: '选择将用于生成对应的结果说明与行动建议'
   },
 
   onLoad(options = {}) {
-    this.updateSelection(
-      normalizeUserType(options.userType),
-      normalizeAssessmentType(options.assessmentType)
-    )
+    const assessmentType = normalizeAssessmentType(options.assessmentType)
+    if (options.userType === USER_TYPES.WORKING_PROFESSIONAL) {
+      const legacySelection = parseAssessmentSelection(options)
+      const draft = storage.getDraft(legacySelection)
+      if (draft?.user_type === legacySelection.userType) {
+        this.setData({ legacyDraftUrl: buildAssessmentUrl(legacySelection) })
+      }
+    }
+    this.updateSelection(getSelectableRole(options.userType), assessmentType)
   },
 
   selectUserType(event) {
     this.updateSelection(
-      normalizeUserType(event.currentTarget.dataset.value),
+      getSelectableRole(event.currentTarget.dataset.value),
       this.data.assessmentType
     )
   },
@@ -55,25 +54,27 @@ Page({
   updateSelection(userType, assessmentType) {
     const selection = parseAssessmentSelection({ userType, assessmentType })
     const isProfessional = assessmentType === ASSESSMENT_TYPES.PROFESSIONAL
-    const canContinue = selection.isUserTypeValid
+    const canContinue = selection.isUserTypeValid && selection.isAssessmentAvailable
+    const count = isProfessional ? professional.item_count : standard.item_count
 
     this.setData({
       userType,
       assessmentType,
-      userOptions: USER_OPTIONS.map((item) => Object.assign({}, item, {
+      userOptions: ASSESSMENT_ROLE_OPTIONS.map((item) => Object.assign({}, item, {
         selected: item.value === userType
       })),
+      isAdvisor: userType === USER_TYPES.CAREER_ADVISOR,
       selectedVersionEmblem: isProfessional ? '专' : '标',
-      selectedVersionLabel: isProfessional ? '专业版' : '标准版',
-      selectedVersionCount: isProfessional ? 250 : 60,
-      selectedVersionStatus: isProfessional ? '筹备中' : '已开放',
+      selectedVersionLabel: selection.assessmentTypeLabel,
+      selectedVersionCount: count,
+      selectedVersionStatus: selection.isAssessmentAvailable ? '已开放' : '暂未开放',
       canContinue,
       actionText: !canContinue
-        ? '请选择你的身份'
-        : (isProfessional ? '查看专业版规划' : '开始标准版测评'),
+        ? '请选择你的角色'
+        : `开始${selection.assessmentTypeLabel}测评`,
       selectionSummary: isProfessional
-        ? '专业版尚未开放，不会产生支付、订单或解锁结果'
-        : `${selection.userTypeLabel} · 标准版 60 题 · 本地保存进度`
+        ? '包含职业兴趣、技能自评、价值观、工作环境和职业愿望。可分多次完成。基础解读看广告，进阶详解单次购买。'
+        : [selection.userTypeLabel, `标准版 ${count} 题`, '本地保存进度'].filter(Boolean).join(' · ')
     })
   },
 
@@ -81,17 +82,7 @@ Page({
     const selection = parseAssessmentSelection(this.data)
 
     if (!selection.isUserTypeValid) {
-      wx.showToast({ title: '请先选择学生或职场人士', icon: 'none' })
-      return
-    }
-
-    if (selection.assessmentType === ASSESSMENT_TYPES.PROFESSIONAL) {
-      wx.showModal({
-        title: '专业版正在筹备中',
-        content: '专业版计划为 250 题，将分别探索职业兴趣、能力、职业价值观、环境偏好和职业愿望。目前题库与报告尚未完成，不复制 SDS® 等受版权保护内容，也不会产生支付或解锁结果。',
-        showCancel: false,
-        confirmText: '我知道了'
-      })
+      wx.showToast({ title: '请先选择你的角色', icon: 'none' })
       return
     }
 

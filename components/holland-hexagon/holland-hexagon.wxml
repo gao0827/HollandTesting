@@ -5,20 +5,23 @@
   <view class="connector connector-left"></view>
   <view class="connector connector-right"></view>
 
-  <view class="hexagon-outer">
-    <view class="hexagon-inner">
-      <view class="compass-ring">
-        <view class="compass-needle needle-top"></view>
-        <view class="compass-needle needle-bottom"></view>
-        <view class="compass-center"></view>
+  <view class="hexagon">
+    <view class="hexagon-base"></view>
+    <view class="hexagon-outer">
+      <view class="hexagon-inner">
+        <view class="compass-ring">
+          <view class="compass-needle needle-top"></view>
+          <view class="compass-needle needle-bottom"></view>
+          <view class="compass-center"></view>
+        </view>
+        <view class="hexagon-title">RIASEC</view>
+        <view class="hexagon-subtitle">兴趣地图</view>
       </view>
-      <view class="hexagon-title">RIASEC</view>
-      <view class="hexagon-subtitle">兴趣地图</view>
     </view>
   </view>
 
   <view wx:for="{{types}}" wx:key="code" class="type-node {{item.className}}">
-    <text class="type-code">{{item.code}}</text>
+    <text class="type-code" style="color: {{item.color}};">{{item.code}}</text>
     <text class="type-name">{{item.name}}</text>
   </view>
 </view>

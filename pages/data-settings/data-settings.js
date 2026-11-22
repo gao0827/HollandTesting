@@ -26,6 +26,7 @@ Page({
           return {
             id: storage.getDraftId(draft),
             label: selection.userTypeLabel || '旧版草稿',
+            assessmentTypeLabel: draft.assessment_type ? selection.assessmentTypeLabel : '',
             answered: Object.keys(draft.answers).length,
             updatedAt: formatDate(draft.updatedAt),
             url: buildAssessmentUrl(selection) || '/pages/selection/selection?assessmentType=standard'

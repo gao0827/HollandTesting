@@ -12,6 +12,7 @@ const {
 } = require(path.join(ROOT, 'config/product'))
 const standardQuestionnaire = require(path.join(ROOT, 'data/questionnaire-standard'))
 const {
+  ASSESSMENT_ROLE_OPTIONS,
   parseAssessmentSelection,
   canStartAssessment,
   buildAssessmentUrl
@@ -55,7 +56,7 @@ test('M03 测评选择页已注册并具备原生页面四件套', () => {
   })
 })
 
-test('选择服务只接受学生或职场人士，并保持专业版关闭', () => {
+test('选择服务支持四种角色和两个版本，并识别旧版职场角色', () => {
   const studentStandard = parseAssessmentSelection({
     userType: USER_TYPES.STUDENT,
     assessmentType: ASSESSMENT_TYPES.STANDARD
@@ -69,28 +70,50 @@ test('选择服务只接受学生或职场人士，并保持专业版关闭', ()
     assessmentType: ASSESSMENT_TYPES.STANDARD
   })
 
-  assert.equal(studentStandard.userTypeLabel, '学生')
+  assert.equal(studentStandard.userTypeLabel, '高中生、大学生')
   assert.equal(workerProfessional.userTypeLabel, '职场人士')
   assert.equal(canStartAssessment(studentStandard), true)
-  assert.equal(canStartAssessment(workerProfessional), false)
+  assert.equal(canStartAssessment(workerProfessional), true)
   assert.equal(canStartAssessment(invalidUser), false)
-  assert.equal(FEATURE_FLAGS.professionalAssessment, false)
+  assert.equal(FEATURE_FLAGS.professionalAssessment, true)
   assert.equal(
     buildAssessmentUrl(studentStandard),
     '/pages/assessment/assessment?userType=student&assessmentType=standard'
   )
-  assert.equal(buildAssessmentUrl(workerProfessional), '')
+  assert.equal(buildAssessmentUrl(workerProfessional), '/pages/assessment/assessment?userType=working_professional&assessmentType=professional')
+  assert.deepEqual(ASSESSMENT_ROLE_OPTIONS.map(({ value }) => value), [
+    USER_TYPES.STUDENT, USER_TYPES.CAREER_STARTER, USER_TYPES.CAREER_TRANSITION, USER_TYPES.CAREER_ADVISOR
+  ])
+  for (const { value, title } of ASSESSMENT_ROLE_OPTIONS) {
+    for (const assessmentType of Object.values(ASSESSMENT_TYPES)) {
+      const selection = parseAssessmentSelection({ userType: value, assessmentType })
+      assert.equal(selection.userTypeLabel, title)
+      assert.equal(buildAssessmentUrl(selection), `/pages/assessment/assessment?userType=${value}&assessmentType=${assessmentType}`)
+    }
+  }
 })
 
-test('选择页只展示阶段选择，并显示首页已选版本', () => {
+test('选择页显示四张角色卡和首页已选版本', () => {
   const script = read('pages/selection/selection.js')
   const wxml = read('pages/selection/selection.wxml')
-  assert.match(script, /学生/)
-  assert.match(script, /职场人士/)
+  const style = read('pages/selection/selection.wxss')
+  const page = createPageInstance(loadPage('pages/selection/selection.js', {}))
+  page.onLoad()
+  assert.deepEqual(page.data.userOptions.map(({ title, description }) => [title, description]), [
+    ['高中生、大学生', '专业选择、职业探索'],
+    ['职场新人', '了解职业偏好、岗位方向'],
+    ['职场转型人群', '重新探索工作方向'],
+    ['家长、职业辅导者', '辅助讨论专业与职业选择']
+  ])
+  page.selectUserType({ currentTarget: { dataset: { value: USER_TYPES.CAREER_ADVISOR } } })
+  assert.equal(page.data.isAdvisor, true)
+  assert.equal(page.data.userOptions.filter(({ selected }) => selected).length, 1)
+  assert.match(style, /\.user-option-list\s*\{[^}]*grid-template-columns:\s*repeat\(2,/)
   assert.match(script, /标准版/)
-  assert.match(script, /专业版/)
+  assert.match(script, /selectedVersionLabel:\s*selection\.assessmentTypeLabel/)
   assert.match(wxml, /selectUserType/)
   assert.match(wxml, /已选择测评/)
+  assert.match(wxml, /陪同测评时，请让测评者按自己的感受和经历作答/)
   assert.doesNotMatch(wxml, /selectAssessmentType/)
   assert.doesNotMatch(wxml, /选择测评版本/)
   assert.doesNotMatch(wxml, /version-grid/)
@@ -101,13 +124,9 @@ test('选择页只展示阶段选择，并显示首页已选版本', () => {
 
 test('首页传入的版本直接生效，用户只需选择阶段', () => {
   let navigateTarget = ''
-  let modalOptions = null
   const definition = loadPage('pages/selection/selection.js', {
     navigateTo(options) {
       navigateTarget = options.url
-    },
-    showModal(options) {
-      modalOptions = options
     },
     showToast() {}
   })
@@ -124,13 +143,12 @@ test('首页传入的版本直接生效，用户只需选择阶段', () => {
   const professionalPage = createPageInstance(definition)
   professionalPage.onLoad({ assessmentType: ASSESSMENT_TYPES.PROFESSIONAL })
   professionalPage.selectUserType({
-    currentTarget: { dataset: { value: USER_TYPES.WORKING_PROFESSIONAL } }
+    currentTarget: { dataset: { value: USER_TYPES.CAREER_TRANSITION } }
   })
   professionalPage.continueAssessment()
   assert.equal(professionalPage.data.selectedVersionLabel, '专业版')
-  assert.equal(modalOptions.showCancel, false)
-  assert.match(modalOptions.content, /250 题/)
-  assert.match(modalOptions.content, /不会产生支付或解锁结果/)
+  assert.equal(professionalPage.data.selectedVersionCount, 250)
+  assert.equal(navigateTarget, '/pages/assessment/assessment?userType=career_transition&assessmentType=professional')
 })
 
 test('答题页拒绝缺少身份的直达请求，并接受有效标准版选择', () => {

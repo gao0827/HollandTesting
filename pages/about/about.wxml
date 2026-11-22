@@ -28,10 +28,16 @@
   </view>
 
   <view class="about-card card">
+    <view class="about-section-title">专业版 250 题</view>
+    <view class="about-copy">职业兴趣 60 题用于生成霍兰德六维罗盘。技能自评 50 题、职业价值观 50 题、工作环境偏好 45 题和职业愿望 45 题分别补充解读，每题单选。</view>
+    <view class="about-copy">技能自评可以选择「未尝试或无法判断」。每个技能主题至少有 5 道有效自评才显示新版熟练度。题库由项目自编，尚未经正式信效度验证。</view>
+  </view>
+
+  <view class="about-card card">
     <view class="about-section-title">数据与隐私</view>
     <view class="privacy-row"><text class="privacy-icon">✓</text><text>题目、计分和结果分析均在小程序本地完成。</text></view>
     <view class="privacy-row"><text class="privacy-icon">✓</text><text>历史记录仅保存在当前微信客户端的本地存储中。</text></view>
-    <view class="privacy-row"><text class="privacy-icon">✓</text><text>当前版本不连接后台、数据库或任何外部接口。</text></view>
+    <view class="privacy-row"><text class="privacy-icon">✓</text><text>购买入口开放后，查询订单需要验证微信会话。已购买用户同意生成完整报告时，才会提交本次汇总分数。</text></view>
     <navigator class="button-ghost about-button" url="/pages/data-settings/data-settings">管理本机数据</navigator>
   </view>
 

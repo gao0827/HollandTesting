@@ -1,6 +1,7 @@
 const fs = require('node:fs')
 const path = require('node:path')
 const { FEATURE_FLAGS } = require('../config/product')
+const { available, getReportAdUnit, getBasicReportAdUnit } = require('../services/commercial-service')
 
 function checkProjectConfig(text) {
   let config
@@ -31,9 +32,12 @@ function checkRelease(root) {
     issues.push(`无法读取 project.config.json（${error.code || '读取错误'}）。`)
   }
 
-  if (FEATURE_FLAGS.professionalAssessment || FEATURE_FLAGS.advertising ||
-      FEATURE_FLAGS.payments || FEATURE_FLAGS.paidReportUnlock) {
-    issues.push('当前体验版本需保持专业版与商业功能关闭。')
+  if (FEATURE_FLAGS.advertising && !getReportAdUnit({ assessment_type: 'standard' }) &&
+      !getBasicReportAdUnit({ assessment_type: 'professional' })) {
+    issues.push('开启广告前请配置报告广告单元 ID。')
+  }
+  if ((FEATURE_FLAGS.payments || FEATURE_FLAGS.paidReportUnlock) && !available) {
+    issues.push('开启付费报告前请配置 HTTPS 服务，并同时启用支付和付费解锁。')
   }
   return issues
 }
